@@ -38,6 +38,7 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       { from: 'src/assets', to: 'assets' },
+      { from: 'src/app.css', to: './app.css' },
     ])
   ]
 };
