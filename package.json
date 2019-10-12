@@ -4,8 +4,10 @@
   "description": "A skeleton Phaser/Typescript game for a tech talk",
   "main": "index.js",
   "scripts": {
-    "devserver": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
+    "devserver": "webpack-dev-server --config webpack.dev.js",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "tslint -p tsconfig.json --fix --force",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,7 +25,10 @@
   },
   "devDependencies": {
     "html-webpack-plugin": "^3.2.0",
+    "prettier": "^1.18.2",
     "ts-loader": "^6.2.0",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.6.4",
     "webpack": "^4.41.1",
     "webpack-cli": "^3.3.9",
