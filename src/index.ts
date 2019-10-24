@@ -1,45 +1,20 @@
-import * as Phaser from 'phaser';
+import * as PIXI from 'pixi.js';
 
-export class MainScene extends Phaser.Scene {
-  constructor() {
-    super('main');
-  }
+const app = new PIXI.Application();
+document.body.appendChild(app.view);
 
-  preload() {
-    this.load.image('ship', './assets/ship.gif');
-  }
+app.loader.add('ship', 'assets/ship.gif').load((loader, resources) => {
+  const ship = new PIXI.Sprite(resources['ship']!.texture);
+  ship.x = app.renderer.width / 2;
+  ship.y = app.renderer.height / 2;
 
-  create() {
-    const ship = this.add.image(400, 150, 'ship');
-    this.tweens.add({
-      targets: ship,
-      y: 450,
-      duration: 2000,
-      ease: 'Power2',
-      yoyo: true,
-      loop: -1,
-    });
-  }
-}
+  // Rotate around the center
+  ship.anchor.x = 0.5;
+  ship.anchor.y = 0.5;
 
-const config: Phaser.Types.Core.GameConfig = {
-  title: 'Test Game',
-  // parent: 'canvas', // <-- readd once css is setup for index page
-  backgroundColor: '#000000',
-  type: Phaser.AUTO,
-  width: 1024,
-  height: 768,
-  scale: {
-    mode: Phaser.Scale.NONE,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-  },
-  physics: {
-    default: 'arcade',
-    arcade: {
-      debug: true,
-    },
-  },
-  scene: [MainScene],
-};
+  app.stage.addChild(ship);
 
-export const game = new Phaser.Game(config);
+  app.ticker.add(() => {
+    ship.rotation += 0.01;
+  });
+});

@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/zeddic/game-talk#readme",
   "dependencies": {
-    "phaser": "^3.20.0"
+    "pixi.js": "^5.1.5"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
