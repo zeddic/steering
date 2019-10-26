@@ -1,12 +1,15 @@
 import * as PIXI from 'pixi.js';
+import {BaseGameObject} from './models/base_game_object';
+import {SpriteComponent} from './components/sprite_component';
+import {ComponentGroup} from './components/component_group';
+import {PhysicsComponent} from './components/physics_component';
+import {WorldBoundsComponent} from './components/world_bounds_component';
 
 const app = new PIXI.Application();
 document.body.appendChild(app.view);
 
-const loader = app.loader.add('ship', 'assets/ship.gif');
+const loader = app.loader.add('assets/ship.gif');
 loader.load((loader, resources) => {
-  // app.stage.addChild(ship);
-
   const ship = new Ship();
 
   app.ticker.add(() => {
@@ -14,49 +17,31 @@ loader.load((loader, resources) => {
     const delta = deltaMS / 1000;
 
     ship.update(delta);
-
-    // ship.rotation += 1 * delta;
   });
 });
 
-interface GameObject {
-  position: Vector;
-  velocity: Vector;
-  acceleration: Vector;
-
-  update(delta: number): void;
-}
-
-class Ship implements GameObject {
-  position = new Vector(0, 0);
-  velocity = new Vector(0, 0);
-  acceleration = new Vector(0, 0);
+class Ship extends BaseGameObject {
+  components = new ComponentGroup([
+    new SpriteComponent(this, app, 'assets/ship.gif'),
+    new PhysicsComponent(this),
+    new WorldBoundsComponent(this, app),
+  ]);
 
   constructor() {
-    const ship = new PIXI.Sprite(app.loader.resources['ship']!.texture);
-    ship.x = app.renderer.width / 2;
-    ship.y = app.renderer.height / 2;
-    ship.anchor.x = 0.5;
-    ship.anchor.y = 0.5;
+    super();
+    this.p.x = app.view.width / 2;
+    this.p.y = app.view.height / 2;
+
+    this.v.x = 50;
+    this.v.y = 50;
   }
 
-  update(delta: number): void {}
-}
+  update(deltaMs: number) {
+    this.rotation += deltaMs * 90;
+    this.components.update(deltaMs);
+  }
 
-class Vector {
-  x: number;
-  y: number;
-
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+  render() {
+    this.components.render();
   }
 }
-
-// let ticker = new PIXI.Ticker();
-// let renderer = PIXI.autoDetectRenderer();
-// let stage = new PIXI.Container();
-// document.body.appendChild(renderer.view);
-// ticker.add(function(time) {
-//   renderer.render(stage);
-// });
