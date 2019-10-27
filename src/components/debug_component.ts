@@ -8,5 +8,20 @@ export class DebugComponent implements GameComponent {
 
   update(deltaMs: number): void {}
 
-  render(): void {}
+  render(graphics: PIXI.Graphics): void {
+    graphics.lineStyle(1, 0xff3333, 1);
+    graphics.drawRect(
+      this.object.left,
+      this.object.top,
+      this.object.width,
+      this.object.height,
+    );
+
+    graphics.lineStyle(1, 0x3352ff, 1);
+    graphics.moveTo(this.object.x, this.object.y);
+    graphics.lineTo(
+      this.object.x + this.object.v.x * 0.2,
+      this.object.y + this.object.v.y * 0.2,
+    );
+  }
 }

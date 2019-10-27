@@ -16,24 +16,24 @@ export class WorldBoundsComponent implements GameComponent {
   update(deltaMs: number): void {
     const view = this.app.view;
 
-    if (this.object.p.x > view.width) {
+    if (this.object.right > view.width) {
       this.object.v.x *= -1;
       this.object.a.x *= -1 * 0.9;
-      this.object.p.x = view.width;
-    } else if (this.object.p.x < 0) {
+      this.object.right = view.width;
+    } else if (this.object.left < 0) {
       this.object.v.x *= -1;
       this.object.a.x *= -1 * 0.9;
-      this.object.p.x = 0;
+      this.object.left = 0;
     }
 
-    if (this.object.p.y > view.height) {
+    if (this.object.bottom > view.height) {
       this.object.v.y *= -1;
       this.object.a.y *= -1 * 0.9;
-      this.object.p.y = view.height;
-    } else if (this.object.p.y < 0) {
+      this.object.bottom = view.height;
+    } else if (this.object.top < 0) {
       this.object.v.y *= -1;
       this.object.a.y *= -1 * 0.9;
-      this.object.p.y = 0;
+      this.object.top = 0;
     }
   }
 

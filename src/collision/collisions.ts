@@ -7,10 +7,10 @@ import {vectors} from '../util/vectors';
  */
 export function regionsCollide(r1: Region, r2: Region): boolean {
   return (
-    r1.left < r2.right &&
-    r1.right > r2.left &&
-    r1.top < r2.top &&
-    r1.bottom > r2.top
+    r1.left <= r2.right &&
+    r1.right >= r2.left &&
+    r1.top <= r2.top &&
+    r1.bottom >= r2.top
   );
 }
 
@@ -24,16 +24,16 @@ function getAABBCollisionDetails(
   o2: GameObject,
 ): CollisionDetails {
   const deltaX = o2.x - o1.x;
-  const o1HalfWidth = o1.right - o1.left;
-  const o2HalfWidth = o2.right - o2.left;
-  const overlapX = o1HalfWidth + o2HalfWidth - deltaX;
+  const o1HalfWidth = o1.width / 2;
+  const o2HalfWidth = o2.width / 2;
+  const overlapX = o1HalfWidth + o2HalfWidth - Math.abs(deltaX);
 
   const deltaY = o2.y - o1.y;
-  const o1HalfHeight = o1.bottom - o1.top;
-  const o2HalfHeight = o2.bottom - o2.top;
-  const overlapY = o1HalfHeight + o2HalfHeight - deltaY;
+  const o1HalfHeight = o1.height / 2;
+  const o2HalfHeight = o2.height / 2;
+  const overlapY = o1HalfHeight + o2HalfHeight - Math.abs(deltaY);
 
-  if (overlapX > overlapY) {
+  if (overlapX < overlapY) {
     const normal = deltaX > 0 ? new Vector(1, 0) : new Vector(-1, 0);
     return {
       normal,
@@ -61,6 +61,12 @@ function applySeperationImpulse(details: CollisionDetails) {
   const relativeVelocity = vectors.subtract(o2.v, o1.v);
   const velAlongNormal = normal.dot(relativeVelocity);
 
+  // If they are moving away from each other already, do nothing. The collision
+  // will resolve itself naturally.
+  if (velAlongNormal > 0) {
+    return;
+  }
+
   // // TODO(baileys): Add restitition to game object
   // const restition1 = 1;
   // const restition2 = 1;
@@ -73,8 +79,6 @@ function applySeperationImpulse(details: CollisionDetails) {
   const totalMass = o1InverseMass + o2InverseMass;
   const o1MassShare = totalMass === 0 ? 0 : o1InverseMass / totalMass;
   const o2MassShare = totalMass === 0 ? 0 : o2InverseMass / totalMass;
-
-  // push = push / (1 / o1.mass + 1 / o2.mass);
 
   const impulse = vectors.multiplyScalar(normal, push);
   const impulse1 = vectors.multiplyScalar(impulse, o1MassShare);

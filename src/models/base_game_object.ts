@@ -1,5 +1,6 @@
 import {GameObject, GameComponent, Region} from './models';
 import {Vector} from '../util/vector';
+import * as PIXI from 'pixi.js';
 
 export class BaseGameObject implements GameObject {
   p = new Vector(0, 0);
@@ -63,5 +64,5 @@ export class BaseGameObject implements GameObject {
 
   update(delta: number) {}
 
-  render() {}
+  render(graphics: PIXI.Graphics) {}
 }

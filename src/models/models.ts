@@ -1,11 +1,12 @@
 import {Vector} from '../util/vector';
+import * as PIXI from 'pixi.js';
 
 export interface Updatable {
   update(delta: number): void;
 }
 
 export interface Renderable {
-  render(): void;
+  render(graphics: PIXI.Graphics): void;
 }
 
 export interface Region {
