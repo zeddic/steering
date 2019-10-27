@@ -18,6 +18,8 @@ export class Ship extends BaseGameObject {
 
     this.v.x = 50;
     this.v.y = 50;
+    this.height = 64;
+    this.width = 64;
   }
 
   update(deltaMs: number) {

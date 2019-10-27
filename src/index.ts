@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js';
 import Stats from 'stats.js';
 import {Ship} from './ship';
 import {randomInt} from './util/random';
+import {regionsCollide, seperateGameObjects} from './collision/collisions';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -31,6 +32,16 @@ loader.load((loader, resources) => {
 
     for (const ship of ships) {
       ship.update(delta);
+    }
+
+    for (const ship of ships) {
+      for (const other of ships) {
+        if (ship === other) continue;
+
+        if (regionsCollide(ship, other)) {
+          seperateGameObjects(ship, other);
+        }
+      }
     }
     stats.end();
   });
