@@ -10,18 +10,15 @@ export class Ship extends BaseGameObject {
     new SpriteComponent(this, this.app, 'assets/ship.gif', {scale: 0.25}),
     new PhysicsComponent(this),
     new WorldBoundsComponent(this, this.app),
-    // new DebugComponent(this),
+    new DebugComponent(this),
   ]);
 
   constructor(private readonly app: PIXI.Application) {
     super();
     this.p.x = app.view.width / 2;
     this.p.y = app.view.height / 2;
-
-    this.v.x = 50;
-    this.v.y = 50;
-    this.height = 10;
-    this.width = 10;
+    this.height = 25;
+    this.width = 25;
   }
 
   update(deltaMs: number) {

@@ -1,9 +1,11 @@
 import {GameComponent, GameObject} from '../models/models';
 import * as PIXI from 'pixi.js';
 
+/**
+ * A component that renders the bounding box and velocity vector of a game object
+ * to make it easier to debug physics.j
+ */
 export class DebugComponent implements GameComponent {
-  // private readonly sprite: PIXI.Sprite;
-
   constructor(private readonly object: GameObject) {}
 
   update(deltaMs: number): void {}
