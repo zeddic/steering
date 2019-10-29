@@ -13,6 +13,7 @@ export class QuadTree implements GameComponent {
   add(o: GameObject) {
     this.root.add(o);
   }
+
   remove(o: GameObject) {
     const node = this.objectToNode.get(o);
     if (node) {
@@ -32,33 +33,31 @@ export class QuadTree implements GameComponent {
   move(o: GameObject) {
     const node = this.objectToNode.get(o);
     if (node) node.move(o);
-    // this.remove(o);
-    // this.add(o);
   }
 
-  update(delta: number): void {}
+  update(delta: number): void {
+    this.cleanup();
+  }
+
+  cleanup() {
+    this.root.cleanup();
+  }
+
   render(graphics: PIXI.Graphics): void {
-    this.root.render(graphics);
+    // this.root.render(graphics);
   }
 }
 
 class Node implements Renderable {
   private sectors: Sectors | undefined;
   private objects: GameObject[] = [];
-  region: Region;
-  private depth: number;
-  // private readonly objectToNode: WeakMap<GameObject, Node>;
 
   constructor(
-    region: Region,
-    depth: number,
+    private readonly region: Region,
+    private readonly depth: number,
     private readonly objectToNode: WeakMap<GameObject, Node>,
     private readonly parent: Node | null,
-  ) {
-    this.region = region;
-    this.depth = depth;
-    // this.objectToNode = objectToNode;
-  }
+  ) {}
 
   add(o: GameObject): Node {
     const sector = this.getSectorForRegion(o);
@@ -79,15 +78,13 @@ class Node implements Renderable {
       const sector = this.getSectorForRegion(o);
       if (sector) {
         const index = this.objects.indexOf(o);
-        if (index > -1) this.objects.splice(index);
+        if (index > -1) this.objects.splice(index, 1);
         sector.add(o);
       }
     } else if (this.parent) {
       const index = this.objects.indexOf(o);
-      if (index > -1) this.objects.splice(index);
+      if (index > -1) this.objects.splice(index, 1);
       this.parent.moveUp(o);
-
-      this.cleanup();
     }
   }
 
@@ -99,83 +96,27 @@ class Node implements Renderable {
     }
   }
 
-  query(region: Region): GameObject[] {
-    const sector = this.getSectorForRegion(region);
-    // if (sector) return sector.query(region);
+  query(region: Region, addTo: GameObject[] = []): GameObject[] {
+    addTo.push(...this.objects);
 
-    const results: GameObject[] = [];
-    results.push(...this.objects);
-
-    if (sector) {
-      results.push(...sector.query(region));
-    } else if (this.sectors) {
-      results.push(...this.objectsRecursive());
-    }
-    return results;
-    // return this.objectsRecursive();
-    // if (this.sectors) {
-    //   if (regionsCollide(this.sectors.nw.region, region)) {
-    //     results.push(...this.sectors.nw.objectsRecursive());
-    //     // results.push(
-    //     //   ...this.sectors.nw.query(
-    //     //     intersectRegions(region, this.sectors.nw.region),
-    //     //   ),
-    //     // );
-    //   }
-
-    //   if (regionsCollide(this.sectors.ne.region, region)) {
-    //     results.push(...this.sectors.ne.objectsRecursive());
-    //     // results.push(
-    //     //   ...this.sectors.ne.query(
-    //     //     intersectRegions(region, this.sectors.ne.region),
-    //     //   ),
-    //     // );
-    //   }
-
-    //   if (regionsCollide(this.sectors.sw.region, region)) {
-    //     results.push(...this.sectors.sw.objectsRecursive());
-    //     // results.push(
-    //     //   ...this.sectors.sw.query(
-    //     //     intersectRegions(region, this.sectors.sw.region),
-    //     //   ),
-    //     // );
-    //   }
-
-    //   if (regionsCollide(this.sectors.se.region, region)) {
-    //     results.push(...this.sectors.se.objectsRecursive());
-    //     // results.push(
-    //     //   ...this.sectors.se.query(
-    //     //     intersectRegions(region, this.sectors.se.region),
-    //     //   ),
-    //     // );
-    //   }
-    // }
-
-    // if (this.sectors) {
-    //   const sector = this.getSectorForRegion(region);
-    //   if (sector) {
-    //     return sector.query(region);
-    //   } else {
-
-    //   }
-    // }
-
-    // results.push(...this.objects.filter(o => isRegionWithin(region, o)));
-    results.push(...this.objects);
-    return results;
-  }
-
-  private objectsRecursive() {
-    const result: GameObject[] = [];
-    result.push(...this.objects);
     if (this.sectors) {
-      result.push(...this.sectors.nw.objectsRecursive());
-      result.push(...this.sectors.ne.objectsRecursive());
-      result.push(...this.sectors.sw.objectsRecursive());
-      result.push(...this.sectors.se.objectsRecursive());
-    }
+      if (regionsCollide(this.sectors.nw.region, region)) {
+        this.sectors.nw.query(region, addTo);
+      }
 
-    return result;
+      if (regionsCollide(this.sectors.ne.region, region)) {
+        this.sectors.ne.query(region, addTo);
+      }
+
+      if (regionsCollide(this.sectors.sw.region, region)) {
+        this.sectors.sw.query(region, addTo);
+      }
+
+      if (regionsCollide(this.sectors.se.region, region)) {
+        this.sectors.se.query(region, addTo);
+      }
+    }
+    return addTo;
   }
 
   private getSectorForRegion(r: Region): Node | undefined {
@@ -197,7 +138,7 @@ class Node implements Renderable {
   }
 
   private shouldDivideForNewObject() {
-    return !this.sectors && this.objects.length >= 1 && this.depth < 7;
+    return !this.sectors && this.objects.length >= 4 && this.depth < 7;
   }
 
   private divide() {
@@ -271,55 +212,31 @@ class Node implements Renderable {
     return isRegionWithin(this.region, region);
   }
 
-  // move(o: GameObject) {
-  //   const sector = this.getSectorForObject(o);
-  //   if (sector) {
-
-  //   }
-  // }
-
   remove(o: GameObject) {
     const index = this.objects.indexOf(o);
-
     if (index !== -1) {
       this.objects.splice(index, 1);
     } else {
       const sector = this.getSectorForRegion(o);
       if (sector) sector.remove(o);
     }
-
-    this.cleanup();
   }
 
-  cleanup() {
-    if (this.sizeOfChildren() === 0) {
-      this.sectors = undefined;
-    }
+  cleanup(): number {
+    let size = 0;
 
-    if (this.objects.length === 0) {
-      if (this.parent) this.parent.cleanup();
-    }
-  }
-
-  size(): number {
-    return this.objects.length + this.sizeOfChildren();
-  }
-
-  sizeOfChildren() {
     if (this.sectors) {
-      return (
-        this.sectors.nw.size() +
-        this.sectors.ne.size() +
-        this.sectors.sw.size() +
-        this.sectors.se.size()
-      );
+      size += this.sectors.nw.cleanup();
+      size += this.sectors.ne.cleanup();
+      size += this.sectors.sw.cleanup();
+      size += this.sectors.se.cleanup();
+      if (size === 0) this.sectors = undefined;
     }
 
-    return 0;
+    return (size += this.objects.length);
   }
 
   render(graphics: PIXI.Graphics): void {
-    // return;
     const r = this.region;
     const alpha = (10 - this.depth + 1) / 10;
 
@@ -330,13 +247,16 @@ class Node implements Renderable {
       this.sectors.se.render(graphics);
     }
 
-    graphics.lineStyle(1, 0x3352ff, alpha);
+    const thickness = 10 - this.depth + 1;
+    graphics.lineStyle(thickness / 4, 0x3352ff, alpha);
     graphics.drawRect(r.left, r.top, regionWidth(r), regionHeight(r));
-  }
-}
 
-export interface HasBounds {
-  region(): Region;
+    for (const o of this.objects) {
+      graphics.lineStyle(1, 0xf5c242, 1);
+      graphics.moveTo(regionMidX(r), regionMidY(r));
+      graphics.lineTo(o.x, o.y);
+    }
+  }
 }
 
 interface Sectors {
@@ -369,13 +289,4 @@ function regionMidX(r: Region) {
 
 function regionMidY(r: Region) {
   return r.top + (r.bottom - r.top) / 2;
-}
-
-function intersectRegions(r1: Region, r2: Region) {
-  return {
-    top: Math.max(r1.top, r2.top),
-    left: Math.max(r1.left, r2.left),
-    right: Math.min(r1.right, r2.right),
-    bottom: Math.min(r1.bottom, r2.bottom),
-  };
 }

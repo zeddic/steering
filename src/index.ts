@@ -1,18 +1,17 @@
 import * as PIXI from 'pixi.js';
 import Stats from 'stats.js';
+import {regionsCollide, seperateGameObjects} from './collision/collisions';
+import {QuadTree} from './collision/quad_tree';
 import {Ship} from './ship';
 import {randomInt} from './util/random';
-import {regionsCollide, seperateGameObjects} from './collision/collisions';
-import {Vector} from './util/vector';
-import {QuadTree} from './collision/quad_tree';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
 document.body.appendChild(stats.dom);
 
 const app = new PIXI.Application({
-  width: 1000,
-  height: 900,
+  width: 2000,
+  height: 2000,
 });
 document.body.appendChild(app.view);
 
@@ -28,12 +27,12 @@ const quadTree = new QuadTree({
 });
 
 loader.load((loader, resources) => {
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 4000; i++) {
     const ship = new Ship(app);
     ship.p.x = randomInt(0, app.view.width);
     ship.p.y = randomInt(0, app.view.height);
-    ship.v.x = randomInt(-50, 50);
-    ship.v.y = randomInt(-50, 50);
+    ship.v.x = randomInt(-30, 30);
+    ship.v.y = randomInt(-30, 30);
     ship.rotation = randomInt(0, 360);
     ships.push(ship);
   }
@@ -48,7 +47,7 @@ loader.load((loader, resources) => {
   ship2.y = 220;
   ship2.v.set(-100, 0);
 
-  ships.push(ship1, ship2);
+  // ships.push(ship1, ship2);
 
   for (const ship of ships) {
     quadTree.add(ship);
@@ -65,32 +64,44 @@ loader.load((loader, resources) => {
       quadTree.move(ship);
     }
 
+    quadTree.cleanup();
+
     for (const ship of ships) {
       const others = quadTree.query(ship);
       // const others = ships;
       // const others = [];
 
+      // const hit = new Set<GameObject>();
       for (const other of others) {
         if (ship === other) continue;
-
         if (regionsCollide(ship, other)) {
+          // hit.add(other);
           seperateGameObjects(ship, other);
         }
       }
+
+      // for (const other of ships) {
+      //   if (ship === other) continue;
+      //   if (regionsCollide(ship, other)) {
+      //     if (!hit.has(other)) {
+      //       console.log('bad!');
+
+      //       const r1 = quadTree.query(ship);
+
+      //       const n1 = quadTree.getNode(ship);
+      //       const n2 = quadTree.getNode(other);
+      //       // const r2 = quadTree.query(other);
+      //       console.log(n1);
+      //       console.log(n2);
+      //       const r2 = quadTree.query(ship);
+      //     }
+      //   }
+      // }
     }
 
     graphics.clear();
     for (const ship of ships) {
       ship.render(graphics);
-
-      const n = quadTree.objectToNode.get(ship);
-      if (n) {
-        const r = n.region;
-        graphics.lineStyle(1, 0x3352ff, 1);
-        graphics.moveTo(r.left, r.top);
-        graphics.lineTo(ship.x, ship.y);
-        // graphics.drawRect(r.left, r.top, regionWidth(r), regionHeight(r));
-      }
     }
 
     quadTree.render(graphics);

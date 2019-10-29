@@ -9,7 +9,7 @@ export function regionsCollide(r1: Region, r2: Region): boolean {
   return (
     r1.left <= r2.right &&
     r1.right >= r2.left &&
-    r1.top <= r2.top &&
+    r1.top <= r2.bottom &&
     r1.bottom >= r2.top
   );
 }

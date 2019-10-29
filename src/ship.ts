@@ -5,20 +5,22 @@ import {PhysicsComponent} from './components/physics_component';
 import {WorldBoundsComponent} from './components/world_bounds_component';
 import {DebugComponent} from './components/debug_component';
 
+let idGen = 0;
 export class Ship extends BaseGameObject {
   components = new ComponentGroup([
     new SpriteComponent(this, this.app, 'assets/ship.gif', {scale: 0.25}),
     new PhysicsComponent(this),
     new WorldBoundsComponent(this, this.app),
-    new DebugComponent(this),
+    // new DebugComponent(this),
   ]);
+  id = idGen++;
 
   constructor(private readonly app: PIXI.Application) {
     super();
     this.p.x = app.view.width / 2;
     this.p.y = app.view.height / 2;
-    this.height = 25;
-    this.width = 25;
+    this.height = 12;
+    this.width = 12;
   }
 
   update(deltaMs: number) {
