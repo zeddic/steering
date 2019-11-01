@@ -15,13 +15,12 @@ module.exports = function(config) {
         sourceMap: true,
         target: 'es6',
         strict: true,
-        // downlevelIteration: true,
       },
       bundlerOptions: {
         sourceMap: true,
       },
       coverageOptions: {
-        // Must be false for source maps to work.
+        // Must be false for source maps to work:
         instrumentation: false,
       },
     },

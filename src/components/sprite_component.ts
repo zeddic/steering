@@ -1,16 +1,18 @@
 import * as PIXI from 'pixi.js';
 import {GameComponent, GameObject} from '../models/models';
+import {GameState} from '../models/game_state';
 
 export class SpriteComponent implements GameComponent {
   private readonly sprite: PIXI.Sprite;
 
   constructor(
     private readonly object: GameObject,
-    readonly app: PIXI.Application,
+    readonly state: GameState,
     readonly resource: string,
     readonly options: {scale?: number} = {},
   ) {
-    const texture = app.loader.resources[resource]!.texture;
+    const loader = PIXI.Loader.shared;
+    const texture = loader.resources[resource]!.texture;
     this.sprite = new PIXI.Sprite(texture);
     this.sprite.anchor.x = 0.5;
     this.sprite.anchor.y = 0.5;
@@ -20,7 +22,7 @@ export class SpriteComponent implements GameComponent {
       this.sprite.scale = scale;
     }
     this.syncSpriteWithGameObject();
-    app.stage.addChild(this.sprite);
+    state.stage.addChild(this.sprite);
   }
 
   public update(deltaMs: number): void {
