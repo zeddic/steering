@@ -3,7 +3,7 @@ import {GameComponent, GameObject} from '../models/models';
 export class PhysicsComponent implements GameComponent {
   constructor(private readonly object: GameObject) {}
 
-  update(delta: number) {
+  public update(delta: number) {
     const obj = this.object;
 
     // Euler implicit integration
@@ -17,5 +17,5 @@ export class PhysicsComponent implements GameComponent {
     obj.p.y += obj.v.y * delta;
   }
 
-  render() {}
+  public render() {}
 }

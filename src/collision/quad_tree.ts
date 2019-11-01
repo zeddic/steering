@@ -1,4 +1,11 @@
-import {GameObject, Region, GameComponent, Renderable} from '../models/models';
+import {GameObject, Region, Renderable} from '../models/models';
+import {
+  isRegionWithin,
+  regionHeight,
+  regionMidX,
+  regionMidY,
+  regionWidth,
+} from '../util/regions';
 import {regionsCollide} from './collisions';
 
 /**
@@ -66,14 +73,14 @@ export class QuadTree implements Renderable {
    * Enables debug mode. When enabled, the quad tree will be rendered with
    * bounding boxes to help diagnose behvaior.
    */
-  setDebugMode(enabled: boolean) {
+  public setDebugMode(enabled: boolean) {
     this.debug = enabled;
   }
 
   /**
    * Adds an object to the tree. The object will be placed in the smallest node that covers the objects entire region.
    */
-  add(o: GameObject): void {
+  public add(o: GameObject): void {
     const addedToNode = this.root.add(o);
     this.objectToNode.set(o, addedToNode);
   }
@@ -83,7 +90,7 @@ export class QuadTree implements Renderable {
    * Note: The quad tree does not auto-cleanup empty leaf nodes upon removal. Call
    * cleanup() afterwards to compatct the tree.
    */
-  remove(o: GameObject): void {
+  public remove(o: GameObject): void {
     const node = this.objectToNode.get(o);
     if (node) {
       node.remove(o);
@@ -98,7 +105,7 @@ export class QuadTree implements Renderable {
    * Note: In some cases this may include objects outside of the region if
    * those objects happened to sit on a cross-axis of a node.
    */
-  query(region: Region): GameObject[] {
+  public query(region: Region): GameObject[] {
     const result: GameObject[] = [];
     const toProcess = [this.root];
 
@@ -125,6 +132,16 @@ export class QuadTree implements Renderable {
       }
     }
 
+    // const blah = new Set<GameObject>();
+    // for (const set of sets) {
+    //   for (const o of set) {
+    //     result.push(o);
+    //   }
+    //   // result.push(...set);
+    // }
+
+    // const a = [...blah.values()];
+    // return sets
     return result;
   }
 
@@ -135,9 +152,11 @@ export class QuadTree implements Renderable {
    * in the same node or within a parent node. This allows us to update an
    * objects position without doing a full remove() + add().
    */
-  move(o: GameObject): void {
+  public move(o: GameObject): void {
     const node = this.objectToNode.get(o);
-    if (!node) return;
+    if (!node) {
+      return;
+    }
 
     if (node.containsRegion(o)) {
       const sector = node.getSectorForRegion(o);
@@ -162,14 +181,14 @@ export class QuadTree implements Renderable {
   /**
    * Compacts the tree by collapsing nodes who's children nodes are all empty.
    */
-  cleanup() {
+  public cleanup() {
     this.root.cleanup();
   }
 
   /**
    * Renders debug data for the tree when debug mode is enabled.
    */
-  render(graphics: PIXI.Graphics): void {
+  public render(graphics: PIXI.Graphics): void {
     if (this.debug) {
       this.root.render(graphics);
     }
@@ -208,12 +227,12 @@ class Node implements Renderable {
   /**
    * Child quadrants. This may be undefined if the node is a leaf node.
    */
-  sectors: Sectors | undefined;
+  public sectors: Sectors | undefined;
 
   /**
    * Objects within this node.
    */
-  objects: GameObject[] = [];
+  public objects: GameObject[] = [];
 
   constructor(
     readonly region: Region,
@@ -226,10 +245,12 @@ class Node implements Renderable {
    * Adds an object to this node (or one of its children).
    * Returns the node that the object was eventually added to.
    */
-  add(o: GameObject): Node {
+  public add(o: GameObject): Node {
     // Is there a child node that will fit this?
     const sector = this.getSectorForRegion(o);
-    if (sector) return sector.add(o);
+    if (sector) {
+      return sector.add(o);
+    }
 
     // If this item would cause the node to pass its pop-limit,
     // subdivide and try adding again.
@@ -246,7 +267,7 @@ class Node implements Renderable {
    * Given a region returns a quadrant that fully contains that region.
    * Returns undefined if there is no quadrant that does.
    */
-  getSectorForRegion(r: Region): Node | undefined {
+  public getSectorForRegion(r: Region): Node | undefined {
     if (!this.sectors) {
       return undefined;
     }
@@ -262,6 +283,70 @@ class Node implements Renderable {
     }
 
     return undefined;
+  }
+
+  /**
+   * Returns true if this node fully contains another region.
+   */
+  public containsRegion(region: Region): boolean {
+    return isRegionWithin(this.region, region);
+  }
+
+  /**
+   * Removes the game object from the specified node or any of its children.
+   */
+  public remove(o: GameObject) {
+    const index = this.objects.indexOf(o);
+    if (index !== -1) {
+      this.objects.splice(index, 1);
+      return;
+    }
+
+    const sector = this.getSectorForRegion(o);
+    if (sector) {
+      sector.remove(o);
+    }
+  }
+
+  /**
+   * Recursively collapses nodes whos quadrants are empty.
+   */
+  public cleanup(): number {
+    let size = 0;
+
+    if (this.sectors) {
+      size += this.sectors.nw.cleanup();
+      size += this.sectors.ne.cleanup();
+      size += this.sectors.sw.cleanup();
+      size += this.sectors.se.cleanup();
+      if (size === 0) {
+        this.sectors = undefined;
+      }
+    }
+
+    return (size += this.objects.length);
+  }
+
+  public render(graphics: PIXI.Graphics): void {
+    const r = this.region;
+    const alpha = (10 - this.depth + 1) / 10;
+
+    if (this.sectors) {
+      this.sectors.nw.render(graphics);
+      this.sectors.ne.render(graphics);
+      this.sectors.sw.render(graphics);
+      this.sectors.se.render(graphics);
+    }
+
+    const thickness = 10 - this.depth + 1;
+    graphics.lineStyle(thickness / 4, 0x3352ff, alpha);
+    graphics.drawRect(r.left, r.top, regionWidth(r), regionHeight(r));
+
+    for (const o of this.objects) {
+      graphics.lineStyle(1, 0xf5c242, 1);
+      graphics.moveTo(regionMidX(r), regionMidY(r));
+      graphics.lineTo(o.x, o.y);
+    }
   }
 
   /**
@@ -352,91 +437,4 @@ class Node implements Renderable {
       this.add(o);
     }
   }
-
-  /**
-   * Returns true if this node fully contains another region.
-   */
-  containsRegion(region: Region): boolean {
-    return isRegionWithin(this.region, region);
-  }
-
-  /**
-   * Removes the game object from the specified node or any of its children.
-   */
-  remove(o: GameObject) {
-    const index = this.objects.indexOf(o);
-    if (index !== -1) {
-      this.objects.splice(index, 1);
-      return;
-    }
-
-    const sector = this.getSectorForRegion(o);
-    if (sector) sector.remove(o);
-  }
-
-  /**
-   * Recursively collapses nodes whos quadrants are empty.
-   */
-  cleanup(): number {
-    let size = 0;
-
-    if (this.sectors) {
-      size += this.sectors.nw.cleanup();
-      size += this.sectors.ne.cleanup();
-      size += this.sectors.sw.cleanup();
-      size += this.sectors.se.cleanup();
-      if (size === 0) this.sectors = undefined;
-    }
-
-    return (size += this.objects.length);
-  }
-
-  render(graphics: PIXI.Graphics): void {
-    const r = this.region;
-    const alpha = (10 - this.depth + 1) / 10;
-
-    if (this.sectors) {
-      this.sectors.nw.render(graphics);
-      this.sectors.ne.render(graphics);
-      this.sectors.sw.render(graphics);
-      this.sectors.se.render(graphics);
-    }
-
-    const thickness = 10 - this.depth + 1;
-    graphics.lineStyle(thickness / 4, 0x3352ff, alpha);
-    graphics.drawRect(r.left, r.top, regionWidth(r), regionHeight(r));
-
-    for (const o of this.objects) {
-      graphics.lineStyle(1, 0xf5c242, 1);
-      graphics.moveTo(regionMidX(r), regionMidY(r));
-      graphics.lineTo(o.x, o.y);
-    }
-  }
-}
-
-// UTILITY METHIDS
-
-function isRegionWithin(haystack: Region, needle: Region) {
-  return (
-    needle.left >= haystack.left &&
-    needle.right <= haystack.right &&
-    needle.top >= haystack.top &&
-    needle.bottom <= haystack.bottom
-  );
-}
-
-function regionWidth(r: Region) {
-  return r.right - r.left;
-}
-
-function regionHeight(r: Region) {
-  return r.bottom - r.top;
-}
-
-function regionMidX(r: Region) {
-  return r.left + (r.right - r.left) / 2;
-}
-
-function regionMidY(r: Region) {
-  return r.top + (r.bottom - r.top) / 2;
 }

@@ -1,6 +1,6 @@
-import {BaseGameObject} from '../../src/models/base_game_object';
-import {PhysicsComponent} from '../../src/components/physics_component';
 import {QuadTree} from '../../src/collision/quad_tree';
+import {PhysicsComponent} from '../../src/components/physics_component';
+import {BaseGameObject} from '../../src/models/base_game_object';
 
 describe('Quad Tree', () => {
   let tree: QuadTree;
@@ -39,7 +39,7 @@ function region(left: number, top: number, right: number, bottom: number) {
   return {top, left, right, bottom};
 }
 export class TestObject extends BaseGameObject {
-  readonly physics: PhysicsComponent = new PhysicsComponent(this);
+  public readonly physics: PhysicsComponent = new PhysicsComponent(this);
 
   constructor(x: number, y: number, width = 64, height = 64) {
     super();
@@ -49,7 +49,7 @@ export class TestObject extends BaseGameObject {
     this.y = y;
   }
 
-  update(deltaMs: number) {
+  public update(deltaMs: number) {
     this.physics.update(deltaMs);
   }
 }

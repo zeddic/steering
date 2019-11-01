@@ -1,4 +1,4 @@
-import {Region, GameObject} from '../models/models';
+import {GameObject, Region} from '../models/models';
 import {Vector} from '../util/vector';
 import {vectors} from '../util/vectors';
 

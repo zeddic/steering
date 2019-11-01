@@ -9,9 +9,13 @@ module.exports = function(config) {
     karmaTypescriptConfig: {
       reports: {},
       compilerOptions: {
-        lib: ['es2017', 'dom'],
-        esModuleInterop: 'true',
+        lib: ['es2017', 'es2019', 'dom'],
+        esModuleInterop: true,
+        module: 'commonjs',
         sourceMap: true,
+        target: 'es6',
+        strict: true,
+        // downlevelIteration: true,
       },
       bundlerOptions: {
         sourceMap: true,

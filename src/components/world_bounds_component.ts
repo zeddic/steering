@@ -13,7 +13,7 @@ export class WorldBoundsComponent implements GameComponent {
     private readonly region: Region,
   ) {}
 
-  update(deltaMs: number): void {
+  public update(deltaMs: number): void {
     const region = this.region;
 
     if (this.object.right > region.right) {
@@ -37,5 +37,5 @@ export class WorldBoundsComponent implements GameComponent {
     }
   }
 
-  render(): void {}
+  public render(): void {}
 }

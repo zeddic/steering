@@ -4,46 +4,46 @@ import {runInThisContext} from 'vm';
  * A 2D Vector.
  */
 export class Vector {
-  x: number;
-  y: number;
+  public x: number;
+  public y: number;
 
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
   }
 
-  add(other: Vector) {
+  public add(other: Vector) {
     this.x += other.x;
     this.y += other.y;
     return this;
   }
 
-  subtract(other: Vector) {
+  public subtract(other: Vector) {
     this.x -= other.x;
     this.y -= other.y;
     return this;
   }
 
-  multiplyScalar(amount: number) {
+  public multiplyScalar(amount: number) {
     this.x *= amount;
     this.y *= amount;
     return this;
   }
 
-  dot(other: Vector) {
+  public dot(other: Vector) {
     return this.x * other.x + this.y * other.y;
   }
 
-  copy() {
+  public copy() {
     return new Vector(this.x, this.y);
   }
 
-  clear() {
+  public clear() {
     this.x = 0;
     this.y = 0;
   }
 
-  set(x: number, y: number) {
+  public set(x: number, y: number) {
     this.x = x;
     this.y = y;
   }

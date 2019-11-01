@@ -1,5 +1,5 @@
-import {Vector} from '../util/vector';
 import * as PIXI from 'pixi.js';
+import {Vector} from '../util/vector';
 
 export interface Updatable {
   update(delta: number): void;

@@ -1,5 +1,5 @@
-import {GameComponent, GameObject} from '../models/models';
 import * as PIXI from 'pixi.js';
+import {GameComponent, GameObject} from '../models/models';
 
 export class SpriteComponent implements GameComponent {
   private readonly sprite: PIXI.Sprite;
@@ -23,11 +23,11 @@ export class SpriteComponent implements GameComponent {
     app.stage.addChild(this.sprite);
   }
 
-  update(deltaMs: number): void {
+  public update(deltaMs: number): void {
     this.syncSpriteWithGameObject();
   }
 
-  render(): void {}
+  public render(): void {}
 
   private syncSpriteWithGameObject() {
     this.sprite.x = this.object.p.x;

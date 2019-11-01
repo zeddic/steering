@@ -1,15 +1,15 @@
-import {GameObject, GameComponent, Region} from './models';
-import {Vector} from '../util/vector';
 import * as PIXI from 'pixi.js';
+import {Vector} from '../util/vector';
+import {GameComponent, GameObject, Region} from './models';
 
 export class BaseGameObject implements GameObject {
-  p = new Vector(0, 0);
-  v = new Vector(0, 0);
-  a = new Vector(0, 0);
-  width = 0;
-  height = 0;
-  rotation = 0;
-  mass = 1;
+  public p = new Vector(0, 0);
+  public v = new Vector(0, 0);
+  public a = new Vector(0, 0);
+  public width = 0;
+  public height = 0;
+  public rotation = 0;
+  public mass = 1;
 
   get x(): number {
     return this.p.x;
@@ -53,7 +53,7 @@ export class BaseGameObject implements GameObject {
     this.p.y = bottom - this.height / 2;
   }
 
-  region(): Region {
+  public region(): Region {
     return {
       top: this.top,
       left: this.left,
@@ -62,7 +62,7 @@ export class BaseGameObject implements GameObject {
     };
   }
 
-  update(delta: number) {}
+  public update(delta: number) {}
 
-  render(graphics: PIXI.Graphics) {}
+  public render(graphics: PIXI.Graphics) {}
 }
