@@ -132,16 +132,6 @@ export class QuadTree implements Renderable {
       }
     }
 
-    // const blah = new Set<GameObject>();
-    // for (const set of sets) {
-    //   for (const o of set) {
-    //     result.push(o);
-    //   }
-    //   // result.push(...set);
-    // }
-
-    // const a = [...blah.values()];
-    // return sets
     return result;
   }
 

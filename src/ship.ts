@@ -24,7 +24,6 @@ export class Ship extends BaseGameObject {
   }
 
   public update(deltaMs: number) {
-    // this.rotation += deltaMs * 90;
     this.components.update(deltaMs);
   }
 
