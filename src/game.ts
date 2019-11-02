@@ -6,6 +6,7 @@ import {GameState} from './models/game_state';
 import {Ship} from './ship';
 import {randomInt} from './util/random';
 import * as PIXI from 'pixi.js';
+import {CollisionSystem} from './collision/collision_system';
 
 /**
  * The number of milliseconds that should be simulated in each update
@@ -24,10 +25,9 @@ export class Game {
   state: GameState;
   graphics: PIXI.Graphics;
 
-  quadTree: QuadTree;
-  spatialHash: SpatialHash;
-
   ships: Ship[] = [];
+
+  collisionSystem: CollisionSystem;
 
   constructor() {
     // Setup FPS stats
@@ -50,15 +50,7 @@ export class Game {
     this.state.stage.addChild(this.graphics);
 
     // Collision detection.
-
-    // TODO(scott): move this to a different collision class.
-    this.quadTree = new QuadTree({
-      region: bounds,
-      maxDepth: 7,
-      maxNodePop: 4,
-    });
-
-    this.spatialHash = new SpatialHash({gridSize: 128});
+    this.collisionSystem = new CollisionSystem(bounds);
   }
 
   public start() {
@@ -102,7 +94,7 @@ export class Game {
   }
 
   private setup() {
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 20; i++) {
       const ship = new Ship(this.state);
       ship.p.x = randomInt(0, this.renderer.view.width);
       ship.p.y = randomInt(0, this.renderer.view.height);
@@ -112,32 +104,16 @@ export class Game {
       this.ships.push(ship);
     }
 
-    for (const ship of this.ships) {
-      this.quadTree.add(ship);
-      this.spatialHash.add(ship);
-    }
+    this.collisionSystem.addAll(this.ships);
   }
 
   private update(delta: number) {
     for (const ship of this.ships) {
       ship.update(delta);
-      this.spatialHash.move(ship);
+      this.collisionSystem.move(ship);
     }
 
-    this.quadTree.cleanup();
-
-    for (const ship of this.ships) {
-      // const others = quadTree.query(ship);
-      const others = this.spatialHash.query(ship);
-      for (const other of others) {
-        if (ship === other) {
-          continue;
-        }
-        if (regionsCollide(ship, other)) {
-          seperateGameObjects(ship, other);
-        }
-      }
-    }
+    this.collisionSystem.resolveCollisions();
   }
 
   private render() {
@@ -148,7 +124,7 @@ export class Game {
       ship.render(this.graphics);
     }
 
-    this.quadTree.render(this.graphics);
+    this.collisionSystem.render(this.graphics);
   }
 }
 
