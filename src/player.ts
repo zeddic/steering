@@ -22,15 +22,13 @@ export class Player extends BaseGameObject {
 
   constructor(private state: GameState) {
     super();
-    this.p.x = regionMidX(state.bounds);
-    this.p.y = regionMidY(state.bounds);
+    this.p.x = 300;
+    this.p.y = 300;
     this.height = 32;
     this.width = 32;
   }
 
   public update(delta: number) {
-    this.components.update(delta);
-
     // We have to process user input after already applying the prior
     // velocity. This is because collisions may have applied an inpulse
     // and changed the velocity in such a way as to correct the overlap.
@@ -49,6 +47,7 @@ export class Player extends BaseGameObject {
     } else if (this.state.input.isPressed(Key.D)) {
       this.v.addValues(SPEED, 0);
     }
+    this.components.update(delta);
   }
 
   public render(graphics: PIXI.Graphics) {

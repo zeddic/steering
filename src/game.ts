@@ -103,7 +103,7 @@ export class Game {
     this.player.x;
     this.collisionSystem.add(this.player);
 
-    for (let i = 0; i < 0; i++) {
+    for (let i = 0; i < 20; i++) {
       const ship = new Ship(this.state);
       ship.p.x = randomInt(0, this.renderer.view.width);
       ship.p.y = randomInt(0, this.renderer.view.height);

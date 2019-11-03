@@ -93,26 +93,43 @@ function getAABBTileCollisionDetails(
   let minOverlapSeen = Number.MAX_VALUE;
   let normal: Vector | undefined;
 
+  // We need to determine which direction to push the object so it
+  // is no longer overlapping the tile. This is represented by a
+  // normal vector which should point outward on the face of the
+  // object that is overlapping.
+  //
+  // We push the object along the x or y axis which has the least
+  // overlap, so that we do the minimal amount of work to fix things.
+  //
+  // Note that even if a tile is solid, only certain faces on the tile
+  // may be solid, so we must ignore collisions that occured along that
+  // face.
+
+  // Tile to right of object & tile's west face is solid.
   if (deltaX > 0 && o2.solidFaces.w && overlapX < minOverlapSeen) {
-    normal = new Vector(1, 0);
+    normal = new Vector(1, 0); // objects right face is the normal
     minOverlapSeen = overlapX;
   }
 
+  // Tile to left of object & tiles east face is solid.
   if (deltaX < 0 && o2.solidFaces.e && overlapX < minOverlapSeen) {
-    normal = new Vector(-1, 0);
+    normal = new Vector(-1, 0); // object left face is the normal
     minOverlapSeen = overlapX;
   }
 
-  if (deltaY > 0 && o2.solidFaces.s && overlapY < minOverlapSeen) {
-    normal = new Vector(0, 1);
+  // Tile below object & tiles north face is solid.
+  if (deltaY > 0 && o2.solidFaces.n && overlapY < minOverlapSeen) {
+    normal = new Vector(0, 1); // objects bottom face is the normal
     minOverlapSeen = overlapY;
   }
 
-  if (deltaY < 0 && o2.solidFaces.n && overlapY < minOverlapSeen) {
-    normal = new Vector(0, -1);
+  // Tile above object & tiles south face is solid
+  if (deltaY < 0 && o2.solidFaces.s && overlapY < minOverlapSeen) {
+    normal = new Vector(0, -1); // objects top face is the normal
     minOverlapSeen = overlapY;
   }
 
+  // Object had no solid faces?
   if (!normal) {
     return undefined;
   }
@@ -121,6 +138,7 @@ function getAABBTileCollisionDetails(
     normal,
     object: o1,
     tile: o2,
+    overlap: minOverlapSeen,
   };
 }
 // https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
@@ -138,7 +156,7 @@ function applySeperationImpulse(details: CollisionDetails) {
     return;
   }
 
-  // // TODO(baileys): Add restitition to game object
+  // TODO(scott): Add restitition to game object
   // const restition1 = 1;
   // const restition2 = 1;
   // const restition = Math.min(restition1, restition2);
@@ -163,6 +181,8 @@ function applySeperationImpulse(details: CollisionDetails) {
 
   o1.a.clear();
   o2.a.clear();
+
+  // TODO(scott): apply positional correction
 }
 
 /**
@@ -176,7 +196,6 @@ function applyTileSeperationImpulse(details: TileCollisionDetails) {
   // tile is always stationary. So instead of tile.vel - obj.vel, just
   // multiple the obj velocity by -1
   const relativeVelocity = vectors.multiplyScalar(o1.v, -1);
-
   const velAlongNormal = normal.dot(relativeVelocity);
 
   // If they are moving away from each other already, do nothing. The collision
@@ -192,6 +211,8 @@ function applyTileSeperationImpulse(details: TileCollisionDetails) {
   const impulse = vectors.multiplyScalar(normal, push);
   o1.v.subtract(impulse);
   o1.a.clear();
+
+  o1.p.subtract(vectors.multiplyScalar(normal, details.overlap));
 }
 
 /**
@@ -225,4 +246,5 @@ interface TileCollisionDetails {
   object: GameObject;
   tile: TileDetails;
   normal: Vector;
+  overlap: number;
 }
