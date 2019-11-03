@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
-import {GameComponent, GameObject} from '../models/models';
+import {GameComponent} from '../models/models';
+import {GameObject} from '../models/game_object';
 
 /**
  * A component that renders the bounding box and velocity vector of a game object

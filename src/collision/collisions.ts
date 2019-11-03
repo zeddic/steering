@@ -1,6 +1,14 @@
-import {GameObject, Region} from '../models/models';
+import {Region} from '../models/models';
 import {Vector} from '../util/vector';
 import {vectors} from '../util/vectors';
+import {GameObject} from '../models/game_object';
+import {TileDetails} from '../world';
+import {
+  regionMidX,
+  regionWidth,
+  regionMidY,
+  regionHeight,
+} from '../util/regions';
 
 /**
  * Returns true if two regions colline based on an Axis Aligned Bounding Box check.
@@ -15,8 +23,14 @@ export function regionsCollide(r1: Region, r2: Region): boolean {
 }
 
 export function seperateGameObjects(o1: GameObject, o2: GameObject) {
-  const collisionDetails = getAABBCollisionDetails(o1, o2);
-  applySeperationImpulse(collisionDetails);
+  const data = getAABBCollisionDetails(o1, o2);
+  applySeperationImpulse(data);
+}
+
+export function sepearteGameObjectFromTile(o1: GameObject, tile: TileDetails) {
+  const data = getAABBTileCollisionDetails(o1, tile);
+  if (!data) return;
+  applyTileSeperationImpulse(data);
 }
 
 function getAABBCollisionDetails(
@@ -37,7 +51,7 @@ function getAABBCollisionDetails(
     const normal = deltaX > 0 ? new Vector(1, 0) : new Vector(-1, 0);
     return {
       normal,
-      overlap: deltaX,
+      overlap: overlapX,
       object1: o1,
       object2: o2,
     };
@@ -45,13 +59,70 @@ function getAABBCollisionDetails(
     const normal = deltaY > 0 ? new Vector(0, 1) : new Vector(0, -1);
     return {
       normal,
-      overlap: deltaY,
+      overlap: overlapY,
       object1: o1,
       object2: o2,
     };
   }
 }
 
+// todo(scott): collapse this and the above function?
+// This is painful because the interface for tiles are very different
+// from regular game objects. Should they be merged? I've been worried about
+// the memory weight of repesenting each tile this way, but this may be premature
+// optimization.
+/**
+ * Given an object and a tile from a tile map, determines how they are colliding
+ * and what normal of the game object it should be projected to resolve the
+ * collision.
+ */
+function getAABBTileCollisionDetails(
+  o1: GameObject,
+  o2: TileDetails,
+): TileCollisionDetails | undefined {
+  const deltaX = regionMidX(o2.region) - o1.x;
+  const o1HalfWidth = o1.width / 2;
+  const o2HalfWidth = regionWidth(o2.region) / 2;
+  const overlapX = o1HalfWidth + o2HalfWidth - Math.abs(deltaX);
+
+  const deltaY = regionMidY(o2.region) - o1.y;
+  const o1HalfHeight = o1.height / 2;
+  const o2HalfHeight = regionHeight(o2.region) / 2;
+  const overlapY = o1HalfHeight + o2HalfHeight - Math.abs(deltaY);
+
+  let minOverlapSeen = Number.MAX_VALUE;
+  let normal: Vector | undefined;
+
+  if (deltaX > 0 && o2.solidFaces.w && overlapX < minOverlapSeen) {
+    normal = new Vector(1, 0);
+    minOverlapSeen = overlapX;
+  }
+
+  if (deltaX < 0 && o2.solidFaces.e && overlapX < minOverlapSeen) {
+    normal = new Vector(-1, 0);
+    minOverlapSeen = overlapX;
+  }
+
+  if (deltaY > 0 && o2.solidFaces.s && overlapY < minOverlapSeen) {
+    normal = new Vector(0, 1);
+    minOverlapSeen = overlapY;
+  }
+
+  if (deltaY < 0 && o2.solidFaces.n && overlapY < minOverlapSeen) {
+    normal = new Vector(0, -1);
+    minOverlapSeen = overlapY;
+  }
+
+  if (!normal) {
+    return undefined;
+  }
+
+  return {
+    normal,
+    object: o1,
+    tile: o2,
+  };
+}
 // https://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-the-basics-and-impulse-resolution--gamedev-6331
 function applySeperationImpulse(details: CollisionDetails) {
   const o1 = details.object1;
@@ -72,6 +143,9 @@ function applySeperationImpulse(details: CollisionDetails) {
   // const restition2 = 1;
   // const restition = Math.min(restition1, restition2);
 
+  // The impule is multiplied by negative 2 because we need:
+  // 1 push to negate the existing velocity
+  // 1 push to start the velocity in the opposite direction
   const push = -2 * velAlongNormal;
 
   const o1InverseMass = o1.mass === 0 ? 0 : 1 / o1.mass;
@@ -89,6 +163,35 @@ function applySeperationImpulse(details: CollisionDetails) {
 
   o1.a.clear();
   o2.a.clear();
+}
+
+/**
+ * Applys an impulse (change in velocity) to a game object so it is no longer
+ * overlapping a tilemap.
+ */
+function applyTileSeperationImpulse(details: TileCollisionDetails) {
+  const o1 = details.object;
+  const normal = details.normal;
+
+  // tile is always stationary. So instead of tile.vel - obj.vel, just
+  // multiple the obj velocity by -1
+  const relativeVelocity = vectors.multiplyScalar(o1.v, -1);
+
+  const velAlongNormal = normal.dot(relativeVelocity);
+
+  // If they are moving away from each other already, do nothing. The collision
+  // will resolve itself naturally.
+  if (velAlongNormal > 0) {
+    return;
+  }
+
+  // The impule is multiplied by negative 2 because we need:
+  // 1 push to negate the existing velocity
+  // 1 push to start the velocity in the opposite direction
+  const push = -2 * velAlongNormal;
+  const impulse = vectors.multiplyScalar(normal, push);
+  o1.v.subtract(impulse);
+  o1.a.clear();
 }
 
 /**
@@ -115,5 +218,11 @@ interface CollisionDetails {
    * For example, <x: 1, y:0> would mean that object1 is overlapping object2 on the
    * right hand side.
    */
+  normal: Vector;
+}
+
+interface TileCollisionDetails {
+  object: GameObject;
+  tile: TileDetails;
   normal: Vector;
 }

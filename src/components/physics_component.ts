@@ -1,4 +1,5 @@
-import {GameComponent, GameObject} from '../models/models';
+import {GameComponent} from '../models/models';
+import {GameObject} from '../models/game_object';
 
 export class PhysicsComponent implements GameComponent {
   constructor(private readonly object: GameObject) {}

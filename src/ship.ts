@@ -4,6 +4,7 @@ import {SpriteComponent} from './components/sprite_component';
 import {WorldBoundsComponent} from './components/world_bounds_component';
 import {BaseGameObject} from './models/base_game_object';
 import {GameState} from './models/game_state';
+import {DebugComponent} from './components/debug_component';
 
 export class Ship extends BaseGameObject {
   public components = new ComponentGroup([
@@ -12,7 +13,7 @@ export class Ship extends BaseGameObject {
     }),
     new PhysicsComponent(this),
     new WorldBoundsComponent(this, this.state.bounds),
-    // new DebugComponent(this),
+    new DebugComponent(this),
   ]);
 
   constructor(private state: GameState) {

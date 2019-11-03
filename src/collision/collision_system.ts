@@ -1,8 +1,14 @@
-import {GameObject, Region} from '../models/models';
+import {Region} from '../models/models';
 import {QuadTree} from './quad_tree';
 import {SpatialHash} from './spatial_hash';
 import * as PIXI from 'pixi.js';
-import {regionsCollide, seperateGameObjects} from './collisions';
+import {
+  regionsCollide,
+  seperateGameObjects,
+  sepearteGameObjectFromTile,
+} from './collisions';
+import {World} from '../world';
+import {GameObject} from '../models/game_object';
 
 /**
  * Keeps track of the objects in the game world and resolves collisions.
@@ -13,9 +19,9 @@ export class CollisionSystem {
   spatialHash: SpatialHash;
   all = new Set<GameObject>();
 
-  constructor(bounds: Region) {
+  constructor(private readonly world: World) {
     this.quadTree = new QuadTree({
-      region: bounds,
+      region: world.bounds,
       maxDepth: 7,
       maxNodePop: 4,
     });
@@ -56,9 +62,7 @@ export class CollisionSystem {
   }
 
   resolveCollisions() {
-    const objects = this.all.values();
-
-    for (const object of objects) {
+    for (const object of this.all.values()) {
       const others = this.query(object);
       for (const other of others) {
         if (object === other) {
@@ -66,6 +70,16 @@ export class CollisionSystem {
         }
         if (regionsCollide(object, other)) {
           seperateGameObjects(object, other);
+        }
+      }
+    }
+
+    for (const object of this.all.values()) {
+      const tiles = this.world.getSolidTileDetailsInRegion(object);
+
+      for (const tile of tiles) {
+        if (regionsCollide(object, tile.region)) {
+          sepearteGameObjectFromTile(object, tile);
         }
       }
     }

@@ -1,4 +1,5 @@
-import {GameObject, Region} from '../models/models';
+import {Region} from '../models/models';
+import {GameObject} from '../models/game_object';
 
 /**
  * Options for creating a new spaital hash.

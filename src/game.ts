@@ -7,6 +7,7 @@ import {Ship} from './ship';
 import {randomInt} from './util/random';
 import * as PIXI from 'pixi.js';
 import {CollisionSystem} from './collision/collision_system';
+import {World} from './world';
 
 /**
  * The number of milliseconds that should be simulated in each update
@@ -20,14 +21,14 @@ const FIXED_UPDATE_STEP_MS = 1000 / 60;
 const MAX_UPDATES_PER_TICK = 10;
 
 export class Game {
-  stats: Stats;
-  renderer: PIXI.Renderer;
+  private stats: Stats;
+  private graphics: PIXI.Graphics;
+  private renderer: PIXI.Renderer;
+
   state: GameState;
-  graphics: PIXI.Graphics;
-
   ships: Ship[] = [];
-
   collisionSystem: CollisionSystem;
+  world: World;
 
   constructor() {
     // Setup FPS stats
@@ -50,7 +51,8 @@ export class Game {
     this.state.stage.addChild(this.graphics);
 
     // Collision detection.
-    this.collisionSystem = new CollisionSystem(bounds);
+    this.world = new World(bounds);
+    this.collisionSystem = new CollisionSystem(this.world);
   }
 
   public start() {
@@ -107,27 +109,38 @@ export class Game {
     this.collisionSystem.addAll(this.ships);
   }
 
+  /**
+   * Updates the game by one simulation step.
+   * @param delta The number of seconds since the last call to update.
+   */
   private update(delta: number) {
     for (const ship of this.ships) {
       ship.update(delta);
       this.collisionSystem.move(ship);
     }
 
+    this.world.update(delta);
     this.collisionSystem.resolveCollisions();
   }
 
+  /**
+   * Renders the game.
+   */
   private render() {
-    this.renderer.render(this.state.stage);
-
     this.graphics.clear();
+
     for (const ship of this.ships) {
       ship.render(this.graphics);
     }
-
+    this.world.render(this.graphics);
     this.collisionSystem.render(this.graphics);
+
+    this.renderer.render(this.state.stage);
   }
 }
 
 function appRegion(view: HTMLCanvasElement) {
   return {left: 0, top: 0, right: view.width, bottom: view.height};
 }
+
+export interface GameState2 {}

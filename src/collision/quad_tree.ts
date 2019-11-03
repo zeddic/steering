@@ -1,4 +1,4 @@
-import {GameObject, Region, Renderable} from '../models/models';
+import {Region, Renderable} from '../models/models';
 import {
   isRegionWithin,
   regionHeight,
@@ -7,6 +7,7 @@ import {
   regionWidth,
 } from '../util/regions';
 import {regionsCollide} from './collisions';
+import {GameObject} from '../models/game_object';
 
 /**
  * Options for a quad tree.

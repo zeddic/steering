@@ -1,4 +1,5 @@
-import {GameComponent, GameObject, Region} from '../models/models';
+import {GameComponent, Region} from '../models/models';
+import {GameObject} from '../models/game_object';
 
 /**
  * A component that keeps the game object within the bounds the world.

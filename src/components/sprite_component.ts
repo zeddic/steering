@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
-import {GameComponent, GameObject} from '../models/models';
+import {GameComponent} from '../models/models';
 import {GameState} from '../models/game_state';
+import {GameObject} from '../models/game_object';
 
 export class SpriteComponent implements GameComponent {
   private readonly sprite: PIXI.Sprite;
