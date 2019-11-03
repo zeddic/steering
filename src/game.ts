@@ -8,6 +8,8 @@ import {randomInt} from './util/random';
 import * as PIXI from 'pixi.js';
 import {CollisionSystem} from './collision/collision_system';
 import {World} from './world';
+import {Input} from './input';
+import {Player} from './player';
 
 /**
  * The number of milliseconds that should be simulated in each update
@@ -29,6 +31,7 @@ export class Game {
   ships: Ship[] = [];
   collisionSystem: CollisionSystem;
   world: World;
+  player!: Player;
 
   constructor() {
     // Setup FPS stats
@@ -47,7 +50,7 @@ export class Game {
     const stage = new PIXI.Container();
     const bounds = appRegion(this.renderer.view);
     this.graphics = new PIXI.Graphics();
-    this.state = new GameState(bounds, stage);
+    this.state = new GameState(bounds, stage, new Input());
     this.state.stage.addChild(this.graphics);
 
     // Collision detection.
@@ -96,7 +99,11 @@ export class Game {
   }
 
   private setup() {
-    for (let i = 0; i < 20; i++) {
+    this.player = new Player(this.state);
+    this.player.x;
+    this.collisionSystem.add(this.player);
+
+    for (let i = 0; i < 0; i++) {
       const ship = new Ship(this.state);
       ship.p.x = randomInt(0, this.renderer.view.width);
       ship.p.y = randomInt(0, this.renderer.view.height);
@@ -119,6 +126,9 @@ export class Game {
       this.collisionSystem.move(ship);
     }
 
+    this.player.update(delta);
+    this.collisionSystem.move(this.player);
+
     this.world.update(delta);
     this.collisionSystem.resolveCollisions();
   }
@@ -132,6 +142,8 @@ export class Game {
     for (const ship of this.ships) {
       ship.render(this.graphics);
     }
+    this.player.render(this.graphics);
+
     this.world.render(this.graphics);
     this.collisionSystem.render(this.graphics);
 

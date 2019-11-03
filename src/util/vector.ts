@@ -18,6 +18,12 @@ export class Vector {
     return this;
   }
 
+  public addValues(x: number, y: number) {
+    this.x += x;
+    this.y += y;
+    return this;
+  }
+
   public subtract(other: Vector) {
     this.x -= other.x;
     this.y -= other.y;
