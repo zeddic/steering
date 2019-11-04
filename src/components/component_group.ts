@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import {GameComponent, GameObject} from '../models/models';
+import {GameComponent} from '../models/models';
 
 export class ComponentGroup implements GameComponent {
   private readonly components: GameComponent[] = [];

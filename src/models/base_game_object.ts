@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import {Vector} from '../util/vector';
-import {GameComponent, GameObject, Region} from './models';
+import {Region} from './models';
+import {GameObject} from './game_object';
 
 export class BaseGameObject implements GameObject {
   public p = new Vector(0, 0);

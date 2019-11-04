@@ -1,6 +1,8 @@
 import {Updatable, Renderable, Region} from './models';
 import {Vector} from '../util/vector';
 
+export const INFINITE_MASS = 0;
+
 export interface GameObject extends Updatable, Renderable, Region {
   /** Position */
   p: Vector;
