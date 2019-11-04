@@ -29,7 +29,7 @@ export class Game {
   world!: World;
   player!: Player;
 
-  constructor() {
+  constructor(readonly loader: PIXI.Loader) {
     // Setup FPS stats
     this.stats = new Stats();
     this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -51,12 +51,7 @@ export class Game {
   }
 
   public start() {
-    // TODO(scott): Move asset loading into seperate file?
-    const loader = PIXI.Loader.shared;
-    loader.add('assets/ship.gif');
-    loader.add('assets/tile_floor.png');
-    loader.add('assets/tile_wall.png');
-    loader.load(() => {
+    this.loader.load(() => {
       this.setup();
       this.startGameLoop();
     });
@@ -95,7 +90,7 @@ export class Game {
 
   private setup() {
     // Collision detection.
-    this.world = new World(this.state.bounds, PIXI.Loader.shared);
+    this.world = new World(this.state.bounds, this.loader);
     this.collisionSystem = new CollisionSystem(this.world);
 
     this.player = new Player(this.state);

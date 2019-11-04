@@ -1,4 +1,9 @@
 import {Game} from './game';
+import {createGameLoader} from './resources';
 
-const game = new Game();
-game.start();
+const loader = createGameLoader();
+
+loader.load(() => {
+  const game = new Game(loader);
+  game.start();
+});
