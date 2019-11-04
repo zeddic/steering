@@ -1,5 +1,6 @@
 import {GameComponent, Region} from './models/models';
 import {getClosestExponentOfTwo} from './util/math';
+import {TileAtlas} from './tile_atlas';
 
 export interface TileMapOptions {
   /**
@@ -12,6 +13,11 @@ export interface TileMapOptions {
    * The map of tiles. Each entry is a row, with the sub-array being columns.
    */
   map: number[][];
+
+  /**
+   * The tile definitions to use within this map.
+   */
+  atlas: TileAtlas;
 }
 
 export class TileMap implements GameComponent {
@@ -32,15 +38,27 @@ export class TileMap implements GameComponent {
    */
   exponentOfTwo: number;
 
+  /**
+   * Tile definitions.
+   */
+  atlas: TileAtlas;
+
   constructor(options: TileMapOptions) {
     this.tiles = options.map;
     this.tileSize = options.tileSize;
     this.exponentOfTwo = getClosestExponentOfTwo(options.tileSize);
+    this.atlas = options.atlas;
   }
 
   update(delta: number): void {}
 
   render(graphics: PIXI.Graphics): void {
+    // Note: this is an inefficient way to draw the tilemap,
+    // but it works for now so I'm not going to optimize it until
+    // its a problem.
+
+    graphics.lineStyle(0);
+
     for (let row = 0; row < this.tiles.length; row++) {
       const rowTiles = this.tiles[row];
       for (let col = 0; col < rowTiles.length; col++) {
@@ -48,8 +66,10 @@ export class TileMap implements GameComponent {
         const x = col * this.tileSize;
         const y = row * this.tileSize;
 
-        if (tileNum === 1) {
-          graphics.beginFill(0x3352ff, 0.6);
+        const details = this.atlas.get(tileNum);
+
+        if (details) {
+          graphics.beginTextureFill(details.texture);
           graphics.drawRect(x, y, this.tileSize, this.tileSize);
           graphics.endFill();
         }
@@ -76,12 +96,12 @@ export class TileMap implements GameComponent {
 
         const details: TileDetails = {
           region: this.tileToRegion(col, row),
-          solid: isSolid(tile),
+          solid: this.isSolid(tile),
           solidFaces: {
-            n: !isSolid(this.getAbove(col, row)),
-            s: !isSolid(this.getBelow(col, row)),
-            w: !isSolid(this.getLeft(col, row)),
-            e: !isSolid(this.getRight(col, row)),
+            n: !this.isSolid(this.getAbove(col, row)),
+            s: !this.isSolid(this.getBelow(col, row)),
+            w: !this.isSolid(this.getLeft(col, row)),
+            e: !this.isSolid(this.getRight(col, row)),
           },
         };
 
@@ -90,6 +110,11 @@ export class TileMap implements GameComponent {
     }
 
     return tiles;
+  }
+
+  private isSolid(id: number) {
+    const config = this.atlas.get(id);
+    return !!config && config.isSolid;
   }
 
   private getTileAtXY(x: number, y: number) {
@@ -135,13 +160,6 @@ export class TileMap implements GameComponent {
       bottom: (row + 1) << this.exponentOfTwo,
     };
   }
-}
-
-/**
- * Returns true if a tile is solid.
- */
-function isSolid(tile: number) {
-  return tile === 1;
 }
 
 /**

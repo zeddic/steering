@@ -1,15 +1,11 @@
-import Stats from 'stats.js';
-import {regionsCollide, seperateGameObjects} from './collision/collisions';
-import {QuadTree} from './collision/quad_tree';
-import {SpatialHash} from './collision/spatial_hash';
-import {GameState} from './models/game_state';
-import {Ship} from './ship';
-import {randomInt} from './util/random';
 import * as PIXI from 'pixi.js';
+import Stats from 'stats.js';
 import {CollisionSystem} from './collision/collision_system';
-import {World} from './world';
 import {Input} from './input';
+import {GameState} from './models/game_state';
 import {Player} from './player';
+import {Ship} from './ship';
+import {World} from './world';
 
 /**
  * The number of milliseconds that should be simulated in each update
@@ -29,8 +25,8 @@ export class Game {
 
   state: GameState;
   ships: Ship[] = [];
-  collisionSystem: CollisionSystem;
-  world: World;
+  collisionSystem!: CollisionSystem;
+  world!: World;
   player!: Player;
 
   constructor() {
@@ -52,15 +48,14 @@ export class Game {
     this.graphics = new PIXI.Graphics();
     this.state = new GameState(bounds, stage, new Input());
     this.state.stage.addChild(this.graphics);
-
-    // Collision detection.
-    this.world = new World(bounds);
-    this.collisionSystem = new CollisionSystem(this.world);
   }
 
   public start() {
+    // TODO(scott): Move asset loading into seperate file?
     const loader = PIXI.Loader.shared;
     loader.add('assets/ship.gif');
+    loader.add('assets/tile_floor.png');
+    loader.add('assets/tile_wall.png');
     loader.load(() => {
       this.setup();
       this.startGameLoop();
@@ -99,6 +94,10 @@ export class Game {
   }
 
   private setup() {
+    // Collision detection.
+    this.world = new World(this.state.bounds, PIXI.Loader.shared);
+    this.collisionSystem = new CollisionSystem(this.world);
+
     this.player = new Player(this.state);
     this.player.x;
     this.collisionSystem.add(this.player);
@@ -146,12 +145,13 @@ export class Game {
   private render() {
     this.graphics.clear();
 
+    this.world.render(this.graphics);
+
     for (const ship of this.ships) {
       ship.render(this.graphics);
     }
     this.player.render(this.graphics);
 
-    this.world.render(this.graphics);
     this.collisionSystem.render(this.graphics);
 
     this.renderer.render(this.state.stage);
