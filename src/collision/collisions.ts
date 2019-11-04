@@ -178,12 +178,6 @@ function resolveObjectVsObject(details: CollisionDetails) {
   const relativeVelocity = vectors.subtract(o2.v, o1.v);
   const velAlongNormal = normal.dot(relativeVelocity);
 
-  // If they are moving away from each other already, do nothing. The collision
-  // will resolve itself naturally.
-  if (velAlongNormal > 0) {
-    return;
-  }
-
   // We will apply collision response proportional to each object's inverse mass.
   // That is, the lighter an object is in comparison to the object it
   // collided with, the greater the energy and positional correction that
@@ -198,24 +192,28 @@ function resolveObjectVsObject(details: CollisionDetails) {
 
   // UPDATE VELOCITY
 
-  // TODO(scott): Add restitition to game object. Right now velocity is
-  // never lost - it just gets reversed. With restition, we will be able
-  // to control much much energy is lost in the act of bouncing. This
-  // would allow us to have bouncy things (eg a rubber ball) and spongy
-  // things (eg grass).
-  // const restition1 = 1;
-  // const restition2 = 1;
-  // const restition = Math.min(restition1, restition2);
+  // If they are moving away from each other already, don't bounce
+  if (velAlongNormal < 0) {
+    // TODO(scott): Add restitition to game object. Right now velocity is
+    // never lost - it just gets reversed. With restition, we will be able
+    // to control much much energy is lost in the act of bouncing. This
+    // would allow us to have bouncy things (eg a rubber ball) and spongy
+    // things (eg grass).
+    // const restition1 = 1;
+    // const restition2 = 1;
+    // const restition = Math.min(restition1, restition2);
 
-  // The velocity is multiplied by negative 2 because we need:
-  // 1x to negate the existing velocity
-  // 1x to start the velocity in the opposite direction
-  const velocityPush = -2 * velAlongNormal;
-  const deltaV = vectors.multiplyScalar(normal, velocityPush);
-  const deltaV1 = vectors.multiplyScalar(deltaV, massShares.mass1Percent);
-  const deltaV2 = vectors.multiplyScalar(deltaV, massShares.mass2Percent);
-  o1.v.subtract(deltaV1);
-  o2.v.add(deltaV2);
+    // The velocity is multiplied by negative 2 because we need:
+    // 1x to negate the existing velocity
+    // 1x to start the velocity in the opposite direction
+    const velocityPush = -2 * velAlongNormal;
+    const deltaV = vectors.multiplyScalar(normal, velocityPush);
+    const deltaV1 = vectors.multiplyScalar(deltaV, massShares.mass1Percent);
+    const deltaV2 = vectors.multiplyScalar(deltaV, massShares.mass2Percent);
+    o1.v.subtract(deltaV1);
+    o2.v.add(deltaV2);
+    return;
+  }
 
   // UPDATE POSITION
   const deltaP = vectors.multiplyScalar(normal, details.overlap);
@@ -244,12 +242,15 @@ function resolveObjectVsTile(details: TileCollisionDetails) {
   o1.a.clear();
 
   // VELOCITY
-  // The velocity is multiplied by negative 2 because we need:
-  // 1x to negate the existing velocity
-  // 1x to start the velocity in the opposite direction
-  const velocityPush = -2 * velAlongNormal;
-  const deltaV = vectors.multiplyScalar(normal, velocityPush);
-  o1.v.subtract(deltaV);
+  // If they are moving away from each other already, don't bounce
+  if (velAlongNormal < 0) {
+    // The velocity is multiplied by negative 2 because we need:
+    // 1x to negate the existing velocity
+    // 1x to start the velocity in the opposite direction
+    const velocityPush = -2 * velAlongNormal;
+    const deltaV = vectors.multiplyScalar(normal, velocityPush);
+    o1.v.subtract(deltaV);
+  }
 
   // POSITION
   const deltaP = vectors.multiplyScalar(normal, details.overlap);

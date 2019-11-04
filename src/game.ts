@@ -103,15 +103,22 @@ export class Game {
     this.player.x;
     this.collisionSystem.add(this.player);
 
-    for (let i = 0; i < 20; i++) {
-      const ship = new Ship(this.state);
-      ship.p.x = randomInt(0, this.renderer.view.width);
-      ship.p.y = randomInt(0, this.renderer.view.height);
-      ship.v.x = randomInt(-70, 70);
-      ship.v.y = randomInt(-70, 70);
-      ship.rotation = randomInt(0, 360);
-      this.ships.push(ship);
-    }
+    // for (let i = 0; i < 20; i++) {
+    //   const ship = new Ship(this.state);
+    //   ship.p.x = randomInt(0, this.renderer.view.width);
+    //   ship.p.y = randomInt(0, this.renderer.view.height);
+    //   ship.v.x = randomInt(-70, 70);
+    //   ship.v.y = randomInt(-70, 70);
+    //   ship.rotation = randomInt(0, 360);
+    //   this.ships.push(ship);
+    // }
+
+    const ship = new Ship(this.state);
+    ship.p.set(200, 350);
+    ship.v.set(-30, -30);
+    this.ships.push(ship);
+    // ship.v.x = randomInt(-70, 70);
+    // ship.v.y = randomInt(-70, 70);
 
     this.collisionSystem.addAll(this.ships);
   }
