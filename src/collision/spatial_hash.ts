@@ -1,5 +1,6 @@
 import {Region} from '../models/models';
 import {GameObject} from '../models/game_object';
+import {getClosestExponentOfTwo} from '../util/math';
 
 /**
  * Options for creating a new spaital hash.
@@ -34,7 +35,7 @@ export class SpatialHash {
   public objectToKeys = new WeakMap<GameObject, string>();
 
   /**
-   * A power of 2 that determines the size of the grid.
+   * A exponent of 2 that determines the size of the grid.
    * For example, a value of 6 represents a grid of size 64 (2^6 = 64)
    *
    * This value is used to bit-shift values in world space to quickly map them
@@ -44,10 +45,10 @@ export class SpatialHash {
    * 64 >> 6 = 1 (cell 1)
    * 132 >> 6 = 2 (cell 2)
    */
-  public powerOfTwo: number;
+  public exponentOfTwo: number;
 
   constructor(options: SpatialHashOptions) {
-    this.powerOfTwo = getPowerOfTwo(options.gridSize || 64);
+    this.exponentOfTwo = getClosestExponentOfTwo(options.gridSize || 64);
   }
 
   /**
@@ -149,10 +150,10 @@ export class SpatialHash {
    * Given a region generates a set of keys for all cells it touches.
    */
   private getKeysForRegion(region: Region) {
-    const sX = region.left >> this.powerOfTwo;
-    const sY = region.top >> this.powerOfTwo;
-    const eX = region.right >> this.powerOfTwo;
-    const eY = region.bottom >> this.powerOfTwo;
+    const sX = region.left >> this.exponentOfTwo;
+    const sY = region.top >> this.exponentOfTwo;
+    const eX = region.right >> this.exponentOfTwo;
+    const eY = region.bottom >> this.exponentOfTwo;
 
     const keys = [];
     for (let y = sY; y <= eY; y++) {
@@ -163,24 +164,6 @@ export class SpatialHash {
 
     return keys;
   }
-}
-
-/**
- * Given a number, returns the power of 2 that is closest to it without
- * going over.
- *
- * For example:
- *   8 => 3 because 2 ^ 3 = 8
- *   16 => 4 because 2 ^ 4 = 16
- *   61 => 5 because 2 ^ 5 = 32 and 2 ^ 6 = 64
- */
-export function getPowerOfTwo(num: number) {
-  let count = 0;
-  while (num > 1) {
-    num = Math.floor(num / 2);
-    count++;
-  }
-  return count;
 }
 
 function encodeKeys(keys: string[]) {

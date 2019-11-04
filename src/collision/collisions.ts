@@ -1,15 +1,14 @@
+import {GameObject, INFINITE_MASS} from '../models/game_object';
 import {Region} from '../models/models';
+import {TileDetails} from '../tile_map';
+import {
+  regionHeight,
+  regionMidX,
+  regionMidY,
+  regionWidth,
+} from '../util/regions';
 import {Vector} from '../util/vector';
 import {vectors} from '../util/vectors';
-import {GameObject, INFINITE_MASS} from '../models/game_object';
-import {TileDetails} from '../world';
-import {
-  regionMidX,
-  regionWidth,
-  regionMidY,
-  regionHeight,
-} from '../util/regions';
-import {Game} from '../game';
 
 /**
  * Returns true if two regions colline based on an Axis Aligned Bounding Box check.
