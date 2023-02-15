@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import {GameComponent} from '../models/models';
 import {GameState} from '../models/game_state';
 import {GameObject} from '../models/game_object';
-import {getLoader} from '../resources';
+import {Assets} from 'pixi.js';
 
 export class SpriteComponent implements GameComponent {
   private readonly sprite: PIXI.Sprite;
@@ -13,8 +13,7 @@ export class SpriteComponent implements GameComponent {
     readonly resource: string,
     readonly options: {scale?: number} = {},
   ) {
-    const loader = getLoader();
-    const texture = loader.resources[resource]!.texture;
+    const texture = Assets.get(resource);
     this.sprite = new PIXI.Sprite(texture);
     this.sprite.anchor.x = 0.5;
     this.sprite.anchor.y = 0.5;

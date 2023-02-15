@@ -1,6 +1,7 @@
 import {GameComponent, Region} from './models/models';
 import {getClosestExponentOfTwo} from './util/math';
 import {TileAtlas} from './tile_atlas';
+import {Graphics} from 'pixi.js';
 
 export interface TileMapOptions {
   /**
@@ -52,7 +53,7 @@ export class TileMap implements GameComponent {
 
   update(delta: number): void {}
 
-  render(graphics: PIXI.Graphics): void {
+  render(graphics: Graphics): void {
     // Note: this is an inefficient way to draw the tilemap,
     // but it works for now so I'm not going to optimize it until
     // its a problem.
@@ -69,7 +70,7 @@ export class TileMap implements GameComponent {
         const details = this.atlas.get(tileNum);
 
         if (details) {
-          graphics.beginTextureFill(details.texture);
+          graphics.beginTextureFill({texture: details.texture});
           graphics.drawRect(x, y, this.tileSize, this.tileSize);
           graphics.endFill();
         }
@@ -79,7 +80,7 @@ export class TileMap implements GameComponent {
 
   public getSolidTileDetailsInRegion(region: Region) {
     const details = this.getTilesDetailsInRegion(region);
-    return details.filter(d => d.solid);
+    return details.filter((d) => d.solid);
   }
 
   public getTilesDetailsInRegion(region: Region) {

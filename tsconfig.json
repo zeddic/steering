@@ -3,9 +3,11 @@
     "declaration": false,
     "esModuleInterop": true,
     "lib": ["es2017", "es2019", "dom"],
-    "module": "commonjs",
+    "module": "ESNext",
     "sourceMap": true,
     "strict": true,
-    "target": "es6"
+    "target": "es2019",
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
   }
 }

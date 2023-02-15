@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import {Application, ICanvas} from 'pixi.js';
 import Stats from 'stats.js';
 import {CollisionSystem} from './collision/collision_system';
 import {Input} from './input';
@@ -20,8 +21,9 @@ const MAX_UPDATES_PER_TICK = 10;
 
 export class Game {
   private stats: Stats;
+  private app: PIXI.Application;
   private graphics: PIXI.Graphics;
-  private renderer: PIXI.Renderer;
+  private renderer: PIXI.IRenderer;
 
   state: GameState;
   ships: Ship[] = [];
@@ -29,21 +31,25 @@ export class Game {
   world!: World;
   player!: Player;
 
-  constructor(readonly loader: PIXI.Loader) {
+  constructor() {
     // Setup FPS stats
     this.stats = new Stats();
     this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
     document.body.appendChild(this.stats.dom);
 
-    // Setup PIXI Renderer
-    this.renderer = new PIXI.Renderer({
-      width: 1000,
-      height: 800,
+    this.app = new Application({
+      view: document.getElementById('pixi-canvas') as HTMLCanvasElement,
+      resolution: window.devicePixelRatio || 1,
+      resizeTo: window,
+      autoDensity: true,
+      // backgroundColor: 0x6495ed,
     });
-    document.body.appendChild(this.renderer.view);
+
+    this.renderer = this.app.renderer;
 
     // State
     const stage = new PIXI.Container();
+
     const bounds = appRegion(this.renderer.view);
     this.graphics = new PIXI.Graphics();
     this.state = new GameState(bounds, stage, new Input());
@@ -51,10 +57,8 @@ export class Game {
   }
 
   public start() {
-    this.loader.load(() => {
-      this.setup();
-      this.startGameLoop();
-    });
+    this.setup();
+    this.startGameLoop();
   }
 
   private startGameLoop() {
@@ -90,7 +94,7 @@ export class Game {
 
   private setup() {
     // Collision detection.
-    this.world = new World(this.state.bounds, this.loader);
+    this.world = new World(this.state.bounds);
     this.collisionSystem = new CollisionSystem(this.world);
 
     this.player = new Player(this.state);
@@ -153,8 +157,6 @@ export class Game {
   }
 }
 
-function appRegion(view: HTMLCanvasElement) {
+function appRegion(view: ICanvas) {
   return {left: 0, top: 0, right: view.width, bottom: view.height};
 }
-
-export interface GameState2 {}

@@ -1,9 +1,7 @@
 import {Game} from './game';
-import {createGameLoader} from './resources';
+import {loadAssets} from './resources';
 
-const loader = createGameLoader();
-
-loader.load(() => {
-  const game = new Game(loader);
+loadAssets().then(() => {
+  const game = new Game();
   game.start();
 });

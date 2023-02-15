@@ -8,6 +8,7 @@ import {
 } from '../util/regions';
 import {regionsCollide} from './collisions';
 import {GameObject} from '../models/game_object';
+import {Graphics} from 'pixi.js';
 
 /**
  * Options for a quad tree.
@@ -179,7 +180,7 @@ export class QuadTree implements Renderable {
   /**
    * Renders debug data for the tree when debug mode is enabled.
    */
-  public render(graphics: PIXI.Graphics): void {
+  public render(graphics: Graphics): void {
     if (this.debug) {
       this.root.render(graphics);
     }
@@ -318,7 +319,7 @@ class Node implements Renderable {
     return (size += this.objects.length);
   }
 
-  public render(graphics: PIXI.Graphics): void {
+  public render(graphics: Graphics): void {
     const r = this.region;
     const alpha = (10 - this.depth + 1) / 10;
 

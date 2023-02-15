@@ -2,6 +2,7 @@ import {GameComponent, Region} from './models/models';
 import {TileMap} from './tile_map';
 import {TileAtlas} from './tile_atlas';
 import * as PIXI from 'pixi.js';
+import {GameImage} from './resources';
 
 // prettier-ignore
 const TILES = [
@@ -25,16 +26,16 @@ const TILES = [
 export class World implements GameComponent {
   public tileMap: TileMap;
 
-  constructor(readonly bounds: Region, readonly loader: PIXI.Loader) {
-    const atlas = new TileAtlas(loader);
+  constructor(readonly bounds: Region) {
+    const atlas = new TileAtlas();
     atlas.add(0, {
       isSolid: false,
-      resource: 'assets/tile_floor.png',
+      resource: GameImage.TILE_FLOOR,
     });
 
     atlas.add(1, {
       isSolid: true,
-      resource: 'assets/tile_wall.png',
+      resource: GameImage.TILE_WALL,
     });
 
     this.tileMap = new TileMap({

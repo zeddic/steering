@@ -5,10 +5,12 @@ import {WorldBoundsComponent} from './components/world_bounds_component';
 import {BaseGameObject} from './models/base_game_object';
 import {GameState} from './models/game_state';
 import {DebugComponent} from './components/debug_component';
+import {Graphics} from 'pixi.js';
+import {GameImage} from './resources';
 
 export class Ship extends BaseGameObject {
   public components = new ComponentGroup([
-    new SpriteComponent(this, this.state, 'assets/ship.gif', {
+    new SpriteComponent(this, this.state, GameImage.SHIP, {
       scale: 0.8,
     }),
     new PhysicsComponent(this),
@@ -28,7 +30,7 @@ export class Ship extends BaseGameObject {
     this.components.update(deltaMs);
   }
 
-  public render(graphics: PIXI.Graphics) {
+  public render(graphics: Graphics) {
     this.components.render(graphics);
   }
 }

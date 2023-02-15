@@ -7,12 +7,14 @@ import {GameState} from './models/game_state';
 import {DebugComponent} from './components/debug_component';
 import {Key} from './input';
 import {regionMidX, regionMidY} from './util/regions';
+import {Graphics} from 'pixi.js';
+import {GameImage} from './resources';
 
 const SPEED = 150; // units/s
 
 export class Player extends BaseGameObject {
   public components = new ComponentGroup([
-    new SpriteComponent(this, this.state, 'assets/ship.gif', {
+    new SpriteComponent(this, this.state, GameImage.SHIP, {
       scale: 0.8,
     }),
     new PhysicsComponent(this),
@@ -50,7 +52,7 @@ export class Player extends BaseGameObject {
     this.components.update(delta);
   }
 
-  public render(graphics: PIXI.Graphics) {
+  public render(graphics: Graphics) {
     this.components.render(graphics);
   }
 }

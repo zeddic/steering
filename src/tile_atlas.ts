@@ -1,4 +1,4 @@
-import * as PIXI from 'pixi.js';
+import {Assets, Texture} from 'pixi.js';
 
 /**
  * Contains mapping of tile id to the type of tile that should be shown.
@@ -7,22 +7,23 @@ import * as PIXI from 'pixi.js';
 export class TileAtlas {
   data = new Map<number, Tile>();
 
-  constructor(private readonly loader: PIXI.Loader) {}
+  constructor() {}
 
   has(id: number) {
     return this.data.has(id);
   }
 
   add(id: number, config: TileConfig) {
-    const resource = this.loader.resources[config.resource];
-    if (!resource) {
+    const texture = Assets.get(config.resource);
+
+    if (!texture) {
       throw new Error(`${config.resource} not found for tile ${id}!`);
     }
 
     const details: Tile = {
       id,
       isSolid: config.isSolid,
-      texture: resource.texture,
+      texture,
     };
 
     this.data.set(id, details);
@@ -44,5 +45,5 @@ export interface TileConfig {
 export interface Tile {
   id: number;
   isSolid: boolean;
-  texture: PIXI.Texture;
+  texture: Texture;
 }
