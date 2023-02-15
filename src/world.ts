@@ -24,32 +24,30 @@ const TILES = [
 ];
 
 export class World implements GameComponent {
-  public tileMap: TileMap;
+  // public tileMap: TileMap;
 
   constructor(readonly bounds: Region) {
-    const atlas = new TileAtlas();
-    atlas.add(0, {
-      isSolid: false,
-      resource: GameImage.TILE_FLOOR,
-    });
-
-    atlas.add(1, {
-      isSolid: true,
-      resource: GameImage.TILE_WALL,
-    });
-
-    this.tileMap = new TileMap({
-      map: TILES,
-      tileSize: 32,
-      atlas,
-    });
+    // const atlas = new TileAtlas();
+    // atlas.add(0, {
+    //   isSolid: false,
+    //   resource: GameImage.TILE_FLOOR,
+    // });
+    // atlas.add(1, {
+    //   isSolid: true,
+    //   resource: GameImage.TILE_WALL,
+    // });
+    // this.tileMap = new TileMap({
+    //   map: TILES,
+    //   tileSize: 32,
+    //   atlas,
+    // });
   }
 
   update(delta: number): void {
-    this.tileMap.update(delta);
+    // this.tileMap.update(delta);
   }
 
   render(graphics: PIXI.Graphics): void {
-    this.tileMap.render(graphics);
+    // this.tileMap.render(graphics);
   }
 }

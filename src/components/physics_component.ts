@@ -10,10 +10,18 @@ export class PhysicsComponent implements GameComponent {
     // Euler implicit integration
 
     // Update velocity
+    if (this.object.maxForce !== undefined) {
+      obj.a.truncate(this.object.maxForce);
+    }
+
     obj.v.x += obj.a.x * delta;
     obj.v.y += obj.a.y * delta;
 
     // Update position
+    if (this.object.maxSpeed !== undefined) {
+      obj.v.truncate(this.object.maxSpeed);
+    }
+
     obj.p.x += obj.v.x * delta;
     obj.p.y += obj.v.y * delta;
   }

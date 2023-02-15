@@ -11,6 +11,8 @@ export class BaseGameObject implements GameObject {
   public height = 0;
   public rotation = 0;
   public mass = 1;
+  public maxForce?: number;
+  public maxSpeed?: number;
 
   get x(): number {
     return this.p.x;

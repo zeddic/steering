@@ -16,6 +16,9 @@ export interface GameObject extends Updatable, Renderable, Region {
   /** The number of degrees the object is rotated. VISUAL ONLY. Does not effect collision. */
   rotation: number;
 
+  maxForce?: number;
+  maxSpeed?: number;
+
   x: number;
   y: number;
   width: number;

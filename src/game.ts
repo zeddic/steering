@@ -5,8 +5,9 @@ import {CollisionSystem} from './collision/collision_system';
 import {Input} from './input';
 import {GameState} from './models/game_state';
 import {Player} from './player';
-import {Ship} from './ship';
+import {Fish} from './fish';
 import {World} from './world';
+import {randomInt} from './util/random';
 
 /**
  * The number of milliseconds that should be simulated in each update
@@ -26,7 +27,7 @@ export class Game {
   private renderer: PIXI.IRenderer;
 
   state: GameState;
-  ships: Ship[] = [];
+  ships: Fish[] = [];
   collisionSystem!: CollisionSystem;
   world!: World;
   player!: Player;
@@ -75,10 +76,7 @@ export class Game {
       accumlator += delta;
 
       let updates = 0;
-      while (
-        accumlator > FIXED_UPDATE_STEP_MS &&
-        updates < MAX_UPDATES_PER_TICK
-      ) {
+      while (accumlator > FIXED_UPDATE_STEP_MS && updates < MAX_UPDATES_PER_TICK) {
         this.update(FIXED_UPDATE_STEP_MS / 1000);
         accumlator -= FIXED_UPDATE_STEP_MS;
         updates++;
@@ -101,17 +99,17 @@ export class Game {
     this.player.x;
     this.collisionSystem.add(this.player);
 
-    // for (let i = 0; i < 20; i++) {
-    //   const ship = new Ship(this.state);
-    //   ship.p.x = randomInt(0, this.renderer.view.width);
-    //   ship.p.y = randomInt(0, this.renderer.view.height);
-    //   ship.v.x = randomInt(-70, 70);
-    //   ship.v.y = randomInt(-70, 70);
-    //   ship.rotation = randomInt(0, 360);
-    //   this.ships.push(ship);
-    // }
+    for (let i = 0; i < 20; i++) {
+      const ship = new Fish(this.state);
+      ship.p.x = randomInt(0, this.renderer.view.width);
+      ship.p.y = randomInt(0, this.renderer.view.height);
+      ship.v.x = randomInt(-70, 70);
+      ship.v.y = randomInt(-70, 70);
+      ship.rotation = randomInt(0, 360);
+      this.ships.push(ship);
+    }
 
-    const ship = new Ship(this.state);
+    const ship = new Fish(this.state);
     ship.p.set(200, 350);
     ship.v.set(-30, -30);
     this.ships.push(ship);
@@ -126,6 +124,7 @@ export class Game {
    * @param delta The number of seconds since the last call to update.
    */
   private update(delta: number) {
+    console.log(delta);
     for (const ship of this.ships) {
       ship.update(delta);
       this.collisionSystem.move(ship);

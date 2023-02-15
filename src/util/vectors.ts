@@ -9,7 +9,7 @@ function subtract(v1: Vector, v2: Vector): Vector {
 }
 
 function multiplyScalar(v1: Vector, amount: number) {
-  return v1.copy().multiplyScalar(amount);
+  return v1.copy().multiply(amount);
 }
 
 export const vectors = {

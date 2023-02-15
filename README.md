@@ -1,2 +1,3 @@
-# game-talk
-A skeleton game for a web game development tech talk. Using Phaser3 and Typescript.
+# Steering Behaviors
+A toy application to play with steering behaviors.
+Created from a branch of my game-talk repo.

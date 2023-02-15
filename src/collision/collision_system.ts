@@ -74,15 +74,15 @@ export class CollisionSystem {
       }
     }
 
-    for (const object of this.all.values()) {
-      const tiles = this.world.tileMap.getSolidTileDetailsInRegion(object);
+    // for (const object of this.all.values()) {
+    //   const tiles = this.world.tileMap.getSolidTileDetailsInRegion(object);
 
-      for (const tile of tiles) {
-        if (regionsCollide(object, tile.region)) {
-          sepearteGameObjectFromTile(object, tile);
-        }
-      }
-    }
+    //   for (const tile of tiles) {
+    //     if (regionsCollide(object, tile.region)) {
+    //       sepearteGameObjectFromTile(object, tile);
+    //     }
+    //   }
+    // }
   }
 
   cleanup() {

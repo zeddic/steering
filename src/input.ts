@@ -1,3 +1,5 @@
+import {Vector} from './util/vector';
+
 export enum Key {
   Q = 81,
   Z = 90,
@@ -19,10 +21,12 @@ export enum Key {
 
 export class Input {
   pressed = new Set<number>();
+  mouse = new Vector(0, 0);
 
   constructor() {
-    window.addEventListener('keyup', e => this.onKeyup(e));
-    window.addEventListener('keydown', e => this.onKeydown(e));
+    window.addEventListener('keyup', (e) => this.onKeyup(e));
+    window.addEventListener('keydown', (e) => this.onKeydown(e));
+    window.addEventListener('mousemove', (e) => this.onMouseMove(e));
   }
 
   public isPressed(key: Key) {
@@ -35,5 +39,10 @@ export class Input {
 
   private onKeydown(e: KeyboardEvent) {
     this.pressed.add(e.keyCode);
+  }
+
+  private onMouseMove(e: MouseEvent) {
+    this.mouse.x = e.clientX;
+    this.mouse.y = e.clientY;
   }
 }
