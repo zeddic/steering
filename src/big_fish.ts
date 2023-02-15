@@ -10,14 +10,14 @@ import {GameImage} from './resources';
 import {SeekBeahvior} from './components/behaviors/seek_behavior';
 import {FlockBehavior} from './components/behaviors/flock_behavior';
 
-export class Fish extends BaseGameObject {
+export class BigFish extends BaseGameObject {
   public components = new ComponentGroup([
-    new SpriteComponent(this, this.state, GameImage.FISH, {
+    new SpriteComponent(this, this.state, GameImage.FISH_BIG, {
       scale: 0.8,
     }),
     new PhysicsComponent(this),
     new WorldBoundsComponent(this, this.state.bounds),
-    new FlockBehavior(this, this.state),
+    new SeekBeahvior(this, this.state),
     // new DebugComponent(this),
   ]);
 
@@ -25,11 +25,12 @@ export class Fish extends BaseGameObject {
     super();
     this.p.x = 0;
     this.p.y = 0;
-    this.height = 18;
-    this.width = 18;
+    this.height = 64;
+    this.width = 64;
     this.maxForce = 10000;
-    this.maxSpeed = 200;
-    this.type = 'small';
+    this.maxSpeed = 400;
+    this.mass = 8;
+    this.type = 'big';
   }
 
   public update(deltaMs: number) {

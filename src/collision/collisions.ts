@@ -1,12 +1,7 @@
 import {GameObject, INFINITE_MASS} from '../models/game_object';
 import {Region} from '../models/models';
 import {TileDetails} from '../tile_map';
-import {
-  regionHeight,
-  regionMidX,
-  regionMidY,
-  regionWidth,
-} from '../util/regions';
+import {regionHeight, regionMidX, regionMidY, regionWidth} from '../util/regions';
 import {Vector} from '../util/vector';
 import {vectors} from '../util/vectors';
 
@@ -14,12 +9,7 @@ import {vectors} from '../util/vectors';
  * Returns true if two regions colline based on an Axis Aligned Bounding Box check.
  */
 export function regionsCollide(r1: Region, r2: Region): boolean {
-  return (
-    r1.left <= r2.right &&
-    r1.right >= r2.left &&
-    r1.top <= r2.bottom &&
-    r1.bottom >= r2.top
-  );
+  return r1.left <= r2.right && r1.right >= r2.left && r1.top <= r2.bottom && r1.bottom >= r2.top;
 }
 
 // TODO(scott): There is a decent amount of overlap beteween the object vs object code
@@ -49,10 +39,7 @@ export function sepearteGameObjectFromTile(o1: GameObject, tile: TileDetails) {
  * Given two objects in the world, determines how they are colliding and what normal
  * of the first game object it should be projected to resolve the collision.
  */
-function getObjectVsObjectCollisionDetails(
-  o1: GameObject,
-  o2: GameObject,
-): CollisionDetails {
+function getObjectVsObjectCollisionDetails(o1: GameObject, o2: GameObject): CollisionDetails {
   const deltaX = o2.x - o1.x;
   const o1HalfWidth = o1.width / 2;
   const o2HalfWidth = o2.width / 2;
@@ -199,15 +186,15 @@ function resolveObjectVsObject(details: CollisionDetails) {
     // to control much much energy is lost in the act of bouncing. This
     // would allow us to have bouncy things (eg a rubber ball) and spongy
     // things (eg grass).
-    // const restition1 = 1;
-    // const restition2 = 1;
-    // const restition = Math.min(restition1, restition2);
+    const restition1 = 1;
+    const restition2 = 0.4;
+    const restition = Math.min(restition1, restition2);
 
     // The velocity is multiplied by negative 2 because we need:
     // 1x to negate the existing velocity
     // 1x to start the velocity in the opposite direction
     const velocityPush = -2 * velAlongNormal;
-    const deltaV = vectors.multiplyScalar(normal, velocityPush);
+    const deltaV = vectors.multiplyScalar(normal, velocityPush); //.multiply(restition);
     const deltaV1 = vectors.multiplyScalar(deltaV, massShares.mass1Percent);
     const deltaV2 = vectors.multiplyScalar(deltaV, massShares.mass2Percent);
     o1.v.subtract(deltaV1);

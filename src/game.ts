@@ -8,6 +8,7 @@ import {Player} from './player';
 import {Fish} from './fish';
 import {World} from './world';
 import {randomInt} from './util/random';
+import {BigFish} from './big_fish';
 
 /**
  * The number of milliseconds that should be simulated in each update
@@ -27,8 +28,9 @@ export class Game {
   private renderer: PIXI.IRenderer;
 
   state: GameState;
-  ships: Fish[] = [];
-  collisionSystem!: CollisionSystem;
+  fish: Fish[] = [];
+  big!: BigFish;
+
   world!: World;
   player!: Player;
 
@@ -43,18 +45,21 @@ export class Game {
       resolution: window.devicePixelRatio || 1,
       resizeTo: window,
       autoDensity: true,
+      backgroundColor: '0077b6',
       // backgroundColor: 0x6495ed,
     });
 
     this.renderer = this.app.renderer;
 
-    // State
+    // Game State
     const stage = new PIXI.Container();
+    const graphics = new PIXI.Graphics();
+    stage.addChild(graphics);
 
     const bounds = appRegion(this.renderer.view);
-    this.graphics = new PIXI.Graphics();
-    this.state = new GameState(bounds, stage, new Input());
-    this.state.stage.addChild(this.graphics);
+    this.world = new World(bounds);
+    this.state = new GameState(this.world, stage, graphics, new Input());
+    this.graphics = graphics;
   }
 
   public start() {
@@ -91,32 +96,37 @@ export class Game {
   }
 
   private setup() {
-    // Collision detection.
-    this.world = new World(this.state.bounds);
-    this.collisionSystem = new CollisionSystem(this.world);
+    // this.player = new Player(this.state);
+    // this.player.x;
+    // this.world.collisionSystem.add(this.player);
 
-    this.player = new Player(this.state);
-    this.player.x;
-    this.collisionSystem.add(this.player);
+    this.big = new BigFish(this.state);
+    this.big.p.x = 1000;
+    this.big.p.y = 1000;
+    this.world.collisionSystem.add(this.big);
 
-    for (let i = 0; i < 20; i++) {
-      const ship = new Fish(this.state);
-      ship.p.x = randomInt(0, this.renderer.view.width);
-      ship.p.y = randomInt(0, this.renderer.view.height);
-      ship.v.x = randomInt(-70, 70);
-      ship.v.y = randomInt(-70, 70);
-      ship.rotation = randomInt(0, 360);
-      this.ships.push(ship);
+    // this.player = new Player(this.state);
+    // this.player.x;
+    // this.world.collisionSystem.add(this.player);
+
+    for (let i = 0; i < 300; i++) {
+      const fish = new Fish(this.state);
+      fish.p.x = randomInt(0, this.renderer.view.width);
+      fish.p.y = randomInt(0, this.renderer.view.height);
+      fish.v.x = randomInt(-70, 70);
+      fish.v.y = randomInt(-70, 70);
+      fish.rotation = randomInt(0, 360);
+      this.fish.push(fish);
     }
 
-    const ship = new Fish(this.state);
-    ship.p.set(200, 350);
-    ship.v.set(-30, -30);
-    this.ships.push(ship);
+    // const ship = new Fish(this.state);
+    // ship.p.set(200, 350);
+    // ship.v.set(-30, -30);
+    // this.fish.push(ship);
     // ship.v.x = randomInt(-70, 70);
     // ship.v.y = randomInt(-70, 70);
 
-    this.collisionSystem.addAll(this.ships);
+    this.world.collisionSystem.addAll(this.fish);
   }
 
   /**
@@ -124,17 +134,19 @@ export class Game {
    * @param delta The number of seconds since the last call to update.
    */
   private update(delta: number) {
-    console.log(delta);
-    for (const ship of this.ships) {
-      ship.update(delta);
-      this.collisionSystem.move(ship);
+    for (const fish of this.fish) {
+      fish.update(delta);
+      this.world.collisionSystem.move(fish);
     }
 
-    this.player.update(delta);
-    this.collisionSystem.move(this.player);
+    this.big.update(delta);
+    this.world.collisionSystem.move(this.big);
+
+    // this.player.update(delta);
+    // this.world.collisionSystem.move(this.player);
 
     this.world.update(delta);
-    this.collisionSystem.resolveCollisions();
+    this.world.collisionSystem.resolveCollisions();
   }
 
   /**
@@ -145,12 +157,13 @@ export class Game {
 
     this.world.render(this.graphics);
 
-    for (const ship of this.ships) {
+    for (const ship of this.fish) {
       ship.render(this.graphics);
     }
-    this.player.render(this.graphics);
+    // this.player.render(this.graphics);
+    this.big.render(this.graphics);
 
-    this.collisionSystem.render(this.graphics);
+    this.world.collisionSystem.render(this.graphics);
 
     this.renderer.render(this.state.stage);
   }

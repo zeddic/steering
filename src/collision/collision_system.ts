@@ -2,13 +2,11 @@ import {Region} from '../models/models';
 import {QuadTree} from './quad_tree';
 import {SpatialHash} from './spatial_hash';
 import * as PIXI from 'pixi.js';
-import {
-  regionsCollide,
-  seperateGameObjects,
-  sepearteGameObjectFromTile,
-} from './collisions';
+import {regionsCollide, seperateGameObjects, sepearteGameObjectFromTile} from './collisions';
 import {World} from '../world';
 import {GameObject} from '../models/game_object';
+import {Vector} from '../util/vector';
+import {vectors} from '../util/vectors';
 
 /**
  * Keeps track of the objects in the game world and resolves collisions.
@@ -19,9 +17,9 @@ export class CollisionSystem {
   spatialHash: SpatialHash;
   all = new Set<GameObject>();
 
-  constructor(private readonly world: World) {
+  constructor(private readonly bounds: Region) {
     this.quadTree = new QuadTree({
-      region: world.bounds,
+      region: bounds,
       maxDepth: 7,
       maxNodePop: 4,
     });
@@ -91,6 +89,19 @@ export class CollisionSystem {
 
   query(region: Region): GameObject[] {
     return this.spatialHash.query(region);
+  }
+
+  queryByRadius(point: Vector, radius: number, type?: any): GameObject[] {
+    const potentials = this.query({
+      left: point.x - radius,
+      top: point.y - radius,
+      right: point.x + radius,
+      bottom: point.y + radius,
+    });
+
+    return potentials.filter((entity) => {
+      return vectors.withinDistance(point, entity.p, radius);
+    });
   }
 
   render(g: PIXI.Graphics) {}

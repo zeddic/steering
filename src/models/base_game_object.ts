@@ -13,6 +13,7 @@ export class BaseGameObject implements GameObject {
   public mass = 1;
   public maxForce?: number;
   public maxSpeed?: number;
+  public type?: string;
 
   get x(): number {
     return this.p.x;

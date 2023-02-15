@@ -31,6 +31,27 @@ export class Steering {
     return desiredVelocity.subtract(this.entity.v);
   }
 
+  arrive(target: Vector, range: number, offset: number) {
+    offset = offset || 0;
+
+    var desired = vectors.subtract(target, this.entity.p);
+    var len2 = desired.lengthSq();
+
+    if (this.entity.maxSpeed) {
+      desired.normalize().multiply(this.entity.maxSpeed);
+    }
+
+    if (len2 < range * range) {
+      var distance = Math.sqrt(len2);
+      var scale = (distance - offset) / (range - offset);
+      scale = Math.floor(scale);
+      desired.multiply(Math.max(0, scale));
+    }
+
+    desired.subtract(this.entity.v);
+    return desired;
+  }
+
   pursue(target: GameObject): Vector {
     return this.seek(this.getEstimatedTargetPosition(target));
   }

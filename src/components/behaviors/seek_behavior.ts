@@ -11,13 +11,13 @@ export class SeekBeahvior implements GameComponent {
   constructor(private readonly object: GameObject, private readonly state: GameState) {}
 
   public update(delta: number) {
-    const force = this.steering.wander({
-      distance: 5,
-      radius: 50,
-      change: 1,
-    });
+    // const force = this.steering.wander({
+    //   distance: 5,
+    //   radius: 50,
+    //   change: 1,
+    // });
 
-    this.object.a = force; // this.steering.seek(this.state.input.mouse);
+    this.object.a = this.steering.arrive(this.state.input.mouse, 50, 20);
 
     lookAtVelocity(this.object);
 

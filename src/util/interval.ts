@@ -11,7 +11,7 @@ import {randomInt} from './random';
  *  (1) Fire bullets at most 6 times per second
  *  (2) Search for a new target once every 10 seconds
  */
-class Interval implements Updatable {
+export class Interval {
   targets: Function[] = [];
 
   /** A threshold that will trigger the interval when reached. */
@@ -59,19 +59,24 @@ class Interval implements Updatable {
     return this.count >= this.limit;
   }
 
-  update(delta: number) {
+  update(delta: number): boolean {
     this.count += delta;
-    this.trigger();
+    return this.trigger();
   }
 
   trigger() {
+    let triggered = false;
+
     while (this.count >= this.limit || this.triggerNext) {
+      triggered = true;
       this.count -= this.limit;
       this.triggerNext = false;
       for (const target of this.targets) {
         target();
       }
     }
+
+    return triggered;
   }
 
   /**

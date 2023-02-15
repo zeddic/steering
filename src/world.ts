@@ -3,6 +3,7 @@ import {TileMap} from './tile_map';
 import {TileAtlas} from './tile_atlas';
 import * as PIXI from 'pixi.js';
 import {GameImage} from './resources';
+import {CollisionSystem} from './collision/collision_system';
 
 // prettier-ignore
 const TILES = [
@@ -26,7 +27,10 @@ const TILES = [
 export class World implements GameComponent {
   // public tileMap: TileMap;
 
+  collisionSystem: CollisionSystem;
+
   constructor(readonly bounds: Region) {
+    this.collisionSystem = new CollisionSystem(this.bounds);
     // const atlas = new TileAtlas();
     // atlas.add(0, {
     //   isSolid: false,

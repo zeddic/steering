@@ -30,5 +30,7 @@ export interface GameObject extends Updatable, Renderable, Region {
 
   mass: number;
 
+  type?: string;
+
   region(): Region;
 }
